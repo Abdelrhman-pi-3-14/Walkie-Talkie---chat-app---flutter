@@ -1,25 +1,43 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:walkie_talkie/constants/constants.dart';
+import 'package:walkie_talkie/models/weather/current_weather.dart';
 
-class CurrentWeatherService {
+import '../../models/weather/forecast_weather.dart';
 
+class WeatherService {
   final Dio dio;
+  final String apiKey;
 
-  static final baseURL = baseWeatherUrl;
+  WeatherService({required this.apiKey, Dio? dio})
+      : dio = dio ?? Dio();
 
-  final String apiKey ;
+  Future<CurrentWeather> getCurrentWeather(String cityName) async {
+    final response = await dio.get(
+      baseWeatherUrl,
+      queryParameters: {
+        "q": cityName,
+        "appid": apiKey,
+        "units": "metric",
+      },
+    );
 
+    if (kDebugMode) {
+      print("the weather data is : ${response.data}");
+    }
+    return CurrentWeather.fromJson(response.data);
+  }
 
-  CurrentWeatherService({
-    required this.apiKey,
-    Dio? dio,
-  }) : dio = dio ?? Dio();
+  Future<ForecastResponse> getForecast(String cityName) async {
+    final response = await dio.get(
+      baseForecastUrl,
+      queryParameters: {
+        "q": cityName,
+        "appid": apiKey,
+        "units": "metric",
+      },
+    );
 
-
-
-
+    return ForecastResponse.fromJson(response.data);
+  }
 }
-
-
-
-

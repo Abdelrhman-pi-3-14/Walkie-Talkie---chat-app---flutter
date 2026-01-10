@@ -15,6 +15,7 @@ class _MessagesPageState extends State<MessagesPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       body: Stack(
         children: [
           /// MAIN CONTENT
@@ -34,7 +35,11 @@ class _MessagesPageState extends State<MessagesPage> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Image.asset("assets/images/no_result.png", width: 320),
+                      Image.asset(
+                        "assets/images/no_result.png",
+                        width: 200,
+                        height: 200,
+                      ),
                       SizedBox(height: 16),
                       Text(
                         "No Messages Found :( ",

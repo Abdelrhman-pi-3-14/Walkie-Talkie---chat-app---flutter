@@ -13,6 +13,7 @@ class _GroupPageState extends State<GroupPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       body: Stack(
         children: [
 
@@ -35,7 +36,8 @@ class _GroupPageState extends State<GroupPage> {
                   children: [
                     Image.asset(
                       "assets/images/no_result.png",
-                      width: 320,
+                      height: 200,
+                      width: 200,
                     ),
                     SizedBox(height: 16,),
                     Text("No Channels Found :( "
