@@ -23,7 +23,6 @@ class WeatherService {
     );
 
     if (kDebugMode) {
-      print("the weather data is : ${response.data}");
     }
     return CurrentWeather.fromJson(response.data);
   }
