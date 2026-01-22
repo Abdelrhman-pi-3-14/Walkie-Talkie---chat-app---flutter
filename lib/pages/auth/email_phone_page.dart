@@ -14,6 +14,7 @@ class EmailPhonePage extends StatelessWidget {
             onChanged: (v) => userData.instance.email = v,
             style: const TextStyle(color: Colors.white),
             decoration: _inputDecoration("Email"),
+
           ),
         ),
         const SizedBox(height: 24),
@@ -42,6 +43,7 @@ Widget _BasePage({required String title, required Widget child}) {
             color: Colors.lightBlueAccent,
             fontSize: 24,
             fontWeight: FontWeight.bold,
+            fontFamily: 'digital',
           ),
         ),
         const SizedBox(height: 24),

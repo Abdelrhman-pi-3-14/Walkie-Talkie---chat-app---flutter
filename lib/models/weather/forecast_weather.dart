@@ -3,21 +3,21 @@ import 'package:walkie_talkie/models/weather/weather_condition.dart';
 
 import 'current_weather.dart';
 
-class ForecastItem {
+class ForecastWeather {
   final DateTime dateTime;
   final double temp;
   final WeatherCondition condition;
   final String icon;
 
-  ForecastItem({
+  ForecastWeather({
     required this.dateTime,
     required this.temp,
     required this.condition,
     required this.icon,
   });
 
-  factory ForecastItem.fromJson(Map<String, dynamic> json) {
-    return ForecastItem(
+  factory ForecastWeather.fromJson(Map<String, dynamic> json) {
+    return ForecastWeather(
       dateTime: DateTime.parse(json['dt_txt']),
       temp: (json['main']['temp'] as num).toDouble(),
       condition: WeatherCondition.fromJson(json['weather'][0]),
@@ -28,7 +28,7 @@ class ForecastItem {
 
 class ForecastResponse {
   final String cityName;
-  final List<ForecastItem> items;
+  final List<ForecastWeather> items;
 
   ForecastResponse({
     required this.cityName,
@@ -38,7 +38,7 @@ class ForecastResponse {
   factory ForecastResponse.fromJson(Map<String, dynamic> json) {
     final city = json['city']['name'] as String;
     final list = (json['list'] as List)
-        .map((e) => ForecastItem.fromJson(e))
+        .map((e) => ForecastWeather.fromJson(e))
         .toList();
 
     return ForecastResponse(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:walkie_talkie/pages/home/radio_sheet.dart';
+import 'package:walkie_talkie/pages/home/weather_sheet.dart';
 import 'package:walkie_talkie/pages/status_page.dart';
 import '../../constants/rosponsive_helper.dart';
 import '../../services/weather/current_weather_service.dart';
@@ -24,9 +25,7 @@ class _HomePageState extends State<HomePage> {
     "assets/appIcons/status_icon.png",
   ];
 
-  final WeatherService weatherService = WeatherService(
-    apiKey: "39225e8f147355a3be91fac642fa161a",
-  );
+
   final TextEditingController _controller = TextEditingController();
 
   bool isLoadingWeather = false;
@@ -39,26 +38,6 @@ class _HomePageState extends State<HomePage> {
     super.dispose();
   }
 
-  Future<void> fetchWeather(String cityName) async {
-    setState(() {
-      isLoadingWeather = true;
-    });
-
-    try {
-      final weather = await weatherService.getCurrentWeather(cityName);
-      setState(() {
-        currentWeather = weather;
-        isLoadingWeather = false;
-      });
-    } catch (e) {
-      setState(() {
-        isLoadingWeather = false;
-      });
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Failed to fetch weather: $e')));
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -102,8 +81,8 @@ class _HomePageState extends State<HomePage> {
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(color: Colors.white24),
                         ),
-                        height: 100,
-                        width: 250,
+                        height: r.h(0.1),
+                        width: r.w(0.6),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -149,79 +128,84 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ),
 
-                      const SizedBox(height: 24),
                       // Weather Card
                       Column(
                         children: [
                           const SizedBox(height: 16),
-                          Container(
-                            width: 116,
-                            height: 180,
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: Colors.white12.withOpacity(0.15),
-                              borderRadius: BorderRadius.circular(16),
-                              border: Border.all(color: Colors.white24),
-                            ),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    Text(
-                                      currentWeather != null
-                                          ? "${currentWeather!.temperature.toStringAsFixed(1)}°"
-                                          : "--°",
-                                      style: const TextStyle(
-                                        color: Color(0xFF009DFF),
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold,
-                                        fontFamily: 'digital',
+                          InkWell(
+                            onTap: () {
+                              showWeatherBottomSheet(context);
+                            },
+                            child: Container(
+                              width: r.h(0.13),
+                              height: r.h(.2),
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: Colors.white12.withOpacity(0.15),
+                                borderRadius: BorderRadius.circular(16),
+                                border: Border.all(color: Colors.white24),
+                              ),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+
+                                children: [
+                                  Row(
+                                    children: [
+                                      Text(
+                                        currentWeather != null
+                                            ? "${currentWeather!.temperature.toStringAsFixed(1)}°"
+                                            : "--°",
+                                        style: const TextStyle(
+                                          color: Color(0xFF009DFF),
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.bold,
+                                          fontFamily: 'digital',
+                                        ),
                                       ),
+                                      const SizedBox(width: 16),
+                                      const Icon(
+                                        Icons.wb_sunny,
+                                        color: Colors.orangeAccent,
+                                        size: 22,
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    currentWeather != null
+                                        ? currentWeather!.countryName
+                                        : "---, ---",
+                                    style: const TextStyle(
+                                      color: Color(0xFF009DFF),
+                                      fontSize: 13,
+                                      fontFamily: 'digital',
                                     ),
-                                    const SizedBox(width: 16),
-                                    const Icon(
-                                      Icons.wb_sunny,
-                                      color: Colors.orangeAccent,
-                                      size: 22,
+                                  ),
+                                  const SizedBox(height: 16),
+                                  Text(
+                                    currentWeather != null
+                                        ? "lat ${currentWeather!.lat}"
+                                        : "lat --",
+                                    style: const TextStyle(
+                                      color: Color(0xFF009DFF),
+                                      fontSize: 12,
+                                      fontFamily: 'digital',
                                     ),
-                                  ],
-                                ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  currentWeather != null
-                                      ? currentWeather!.countryName
-                                      : "---, ---",
-                                  style: const TextStyle(
-                                    color: Color(0xFF009DFF),
-                                    fontSize: 13,
-                                    fontFamily: 'digital',
                                   ),
-                                ),
-                                const SizedBox(height: 16),
-                                Text(
-                                  currentWeather != null
-                                      ? "lat ${currentWeather!.lat}"
-                                      : "lat --",
-                                  style: const TextStyle(
-                                    color: Color(0xFF009DFF),
-                                    fontSize: 12,
-                                    fontFamily: 'digital',
+                                  SizedBox(height: 8),
+                                  Text(
+                                    currentWeather != null
+                                        ? "long ${currentWeather!.long}"
+                                        : "long --",
+                                    style: const TextStyle(
+                                      color: Color(0xFF009DFF),
+                                      fontSize: 12,
+                                      fontFamily: 'digital',
+                                    ),
                                   ),
-                                ),
-                                SizedBox(height: 8),
-                                Text(
-                                  currentWeather != null
-                                      ? "long ${currentWeather!.long}"
-                                      : "long --",
-                                  style: const TextStyle(
-                                    color: Color(0xFF009DFF),
-                                    fontSize: 12,
-                                    fontFamily: 'digital',
-                                  ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ),
                         ],
@@ -378,3 +362,34 @@ class _HomePageState extends State<HomePage> {
     );
   }
 }
+
+void showWeatherBottomSheet(BuildContext context) {
+  showModalBottomSheet(
+    context: context,
+    backgroundColor: Colors.transparent,
+    isScrollControlled: true,
+    builder: (context) {
+      final height = MediaQuery.of(context).size.height * 0.7;
+
+      return ClipRRect(
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(20),
+          topRight: Radius.circular(20),
+        ),
+        child: Container(
+          height: height,
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: const Color.fromARGB(255, 4, 40, 69),
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: const WeatherBottomSheetContent(),
+        ),
+      );
+    },
+  );
+}
+
+
+
+

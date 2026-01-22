@@ -45,6 +45,8 @@ Widget _BasePage({required String title, required Widget child}) {
             color: Colors.lightBlueAccent,
             fontSize: 24,
             fontWeight: FontWeight.bold,
+            fontFamily: 'digital',
+
           ),
         ),
         const SizedBox(height: 24),
