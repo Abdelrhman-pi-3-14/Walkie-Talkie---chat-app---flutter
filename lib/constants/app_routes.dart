@@ -1,8 +1,10 @@
 import 'package:flutter/cupertino.dart';
+import 'package:walkie_talkie/pages/home/status/write_something_page.dart';
+import 'package:walkie_talkie/pages/settings_page.dart';
 
-import '../pages/ai_chat_page.dart';
+import '../pages/home/chats/aiChat/ai_chat_page.dart';
 import '../pages/auth/auth_page.dart';
-import '../pages/home/home_page.dart';
+import '../pages/home/main/home_page.dart';
 
 class AppRoutes {
   static const String authWarpper = '/';
@@ -14,12 +16,15 @@ class AppRoutes {
   static const String chat = '/chat';
   static const String auth = '/auth';
   static const String aiChat = '/aiChat';
+  static const String writeSomething = '/writeSomething';
 
   static Map<String, WidgetBuilder> routes() {
     return {
       auth: (context) => const AuthPage(),
       home: (context) => const HomePage(),
       aiChat: (context) => const AiChatPage(),
+      settings : (context) => const SettingsPage(),
+      writeSomething : (context) => const WriteSomethingPage()
       //chat: (context) =>  ChatPage(),
     };
   }

@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
-import '../../models/weather/userdata/user_data.dart';
+import '../../models/userdata/user_data.dart';
 
 class ImageBioPage extends StatelessWidget {
   const ImageBioPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final gender = userData.instance.gender;
+    final gender = UserData.instance.gender;
 
-    return _BasePage(
+    return _basePage(
       title: "Profile",
       child: Column(
         children: [
@@ -22,7 +22,7 @@ class ImageBioPage extends StatelessWidget {
           TextField(
             maxLines: 5,
             maxLength: 250,
-            onChanged: (v) => userData.instance.bio = v,
+            onChanged: (v) => UserData.instance.bio = v,
             style: const TextStyle(color: Colors.white),
             decoration: _inputDecoration("Write your bio (max 250 chars)"),
           ),
@@ -31,7 +31,7 @@ class ImageBioPage extends StatelessWidget {
     );
   }
 }
-Widget _BasePage({required String title, required Widget child}) {
+Widget _basePage({required String title, required Widget child}) {
   return Padding(
     padding: const EdgeInsets.all(24),
     child: Column(
@@ -56,7 +56,7 @@ Widget _BasePage({required String title, required Widget child}) {
 InputDecoration _inputDecoration(String hint) {
   return InputDecoration(
     hintText: hint,
-    hintStyle: TextStyle(color: Colors.lightBlueAccent.withOpacity(0.6)),
+    hintStyle: TextStyle(color: Colors.lightBlueAccent.withValues(alpha: 0.6)),
     filled: true,
     fillColor: const Color.fromARGB(255, 6, 55, 95),
     border: OutlineInputBorder(

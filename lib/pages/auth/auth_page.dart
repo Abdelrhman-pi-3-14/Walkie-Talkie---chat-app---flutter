@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:walkie_talkie/constants/rosponsive_helper.dart';
 import 'package:walkie_talkie/pages/auth/email_phone_page.dart';
 import 'package:walkie_talkie/pages/auth/gender_page.dart';
 import 'package:walkie_talkie/pages/auth/image_bio_page.dart';
 import 'package:walkie_talkie/pages/auth/password_page.dart';
-import 'package:walkie_talkie/pages/home/home_page.dart';
 
 import '../../constants/app_routes.dart';
 import 'name_page.dart';
@@ -58,7 +56,6 @@ class _AuthPageState extends State<AuthPage> {
 
   @override
   Widget build(BuildContext context) {
-    Responsive r = Responsive(context);
 
     final bool isLastPage = _currentIndex == pageCount - 1;
 
@@ -108,7 +105,7 @@ class _AuthPageState extends State<AuthPage> {
                   decoration: BoxDecoration(
                     color: isSelected
                         ? Colors.lightBlueAccent
-                        : Colors.grey.withOpacity(0.5),
+                        : Colors.grey.withValues(alpha: 0.5),
                     borderRadius: BorderRadius.circular(10),
                   ),
                 );
@@ -129,7 +126,7 @@ class _AuthPageState extends State<AuthPage> {
                       "Prev",
                       style: TextStyle(
                         color: _currentIndex == 0
-                            ? Colors.lightBlueAccent.withOpacity(0.4)
+                            ? Colors.lightBlueAccent.withValues(alpha: 0.4)
                             : Colors.lightBlueAccent,
                         fontSize: 16,
                         fontWeight: FontWeight.w500,

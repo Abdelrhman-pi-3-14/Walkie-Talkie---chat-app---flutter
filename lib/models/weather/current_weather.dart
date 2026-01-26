@@ -1,14 +1,14 @@
 class CurrentWeather {
   final double temperature;
-  final String condition;
+  final int weatherId;
   final String countryName;
-  final String lat;
-  final String long;
+  final double lat;
+  final double long;
 
 
   CurrentWeather({
     required this.temperature,
-    required this.condition,
+    required this.weatherId,
     required this.countryName,
     required this.lat,
     required this.long,
@@ -16,11 +16,11 @@ class CurrentWeather {
 
   factory CurrentWeather.fromJson(Map<String, dynamic> json) {
     return CurrentWeather(
-      temperature: (json['main']['temp'] as num ?? 0).toDouble(),
-      condition: json['weather'][0]['main'] ?? 'Unknown',
+      temperature: (json['main']['temp'] as num ).toDouble(),
+      weatherId: json['weather'][0]['id'] ?? 'Unknown',
       countryName: json['name'] ?? 'Unknown',
-      lat: json['coord']['lat'].toString(),
-      long: json['coord']['lon'].toString(),
+      lat: json['coord']['lat'],
+      long: json['coord']['lon'],
     );
   }
 }

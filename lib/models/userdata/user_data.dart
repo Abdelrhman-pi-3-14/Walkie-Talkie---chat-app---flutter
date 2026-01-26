@@ -1,6 +1,6 @@
-class userData {
-  static final userData instance = userData._internal();
-  userData._internal();
+class UserData {
+  static final UserData instance = UserData._internal();
+  UserData._internal();
 
   String firstName = '';
   String lastName = '';

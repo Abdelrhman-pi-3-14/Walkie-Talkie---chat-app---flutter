@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../models/weather/userdata/user_data.dart';
+
+import '../../models/userdata/user_data.dart';
 
 class GenderPage extends StatefulWidget {
   const GenderPage({super.key});
@@ -9,11 +10,11 @@ class GenderPage extends StatefulWidget {
 }
 
 class _GenderPageState extends State<GenderPage> {
-  String selected = userData.instance.gender;
+  String selected = UserData.instance.gender;
 
   @override
   Widget build(BuildContext context) {
-    return _BasePage(
+    return _basePage(
       title: "Select Gender",
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -32,7 +33,7 @@ class _GenderPageState extends State<GenderPage> {
       onTap: () {
         setState(() {
           selected = value;
-          userData.instance.gender = value;
+          UserData.instance.gender = value;
         });
       },
       child: Container(
@@ -49,7 +50,7 @@ class _GenderPageState extends State<GenderPage> {
     );
   }
 }
-Widget _BasePage({required String title, required Widget child}) {
+Widget _basePage({required String title, required Widget child}) {
   return Padding(
     padding: const EdgeInsets.all(24),
     child: Column(
@@ -71,6 +72,7 @@ Widget _BasePage({required String title, required Widget child}) {
   );
 }
 
+/*
 InputDecoration _inputDecoration(String hint) {
   return InputDecoration(
     hintText: hint,
@@ -83,4 +85,5 @@ InputDecoration _inputDecoration(String hint) {
     ),
   );
 }
+*/
 

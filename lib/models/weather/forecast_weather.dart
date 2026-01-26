@@ -1,7 +1,7 @@
 
-import 'package:walkie_talkie/models/weather/weather_condition.dart';
 
-import 'current_weather.dart';
+
+import 'package:walkie_talkie/models/weather/weather_condition.dart';
 
 class ForecastWeather {
   final DateTime dateTime;

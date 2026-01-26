@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 
-import '../constants/rosponsive_helper.dart';
+import '../../../../constants/rosponsive_helper.dart';
 
 class AiChatPage extends StatefulWidget {
   const AiChatPage({super.key});
@@ -31,62 +31,113 @@ class _AiChatPageState extends State<AiChatPage> {
     final r = Responsive(context);
 
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 4, 40, 69),
+      backgroundColor: const Color.fromARGB(255, 2, 34, 58),
 
       body: Column(
         children: [
           Container(
-            height: r.h(0.16),
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            height: r.h(0.18),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            decoration: BoxDecoration(
+              color: const Color(0xFF1B1B2F), // dark walkie-talkie background
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.3),
+                  offset: const Offset(0, 4),
+                  blurRadius: 6,
+                ),
+              ],
+            ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-
-                /// 👤 Profile pic
                 Expanded(
                   child: Row(
                     children: [
-                      const SizedBox(width: 16),
                       InkWell(
                         onTap: () {
                           Navigator.pop(context);
                         },
-                        child: Icon(
+                        child: const Icon(
                           Icons.arrow_back_ios,
                           color: Color(0xFF009DFF),
                           size: 25,
                         ),
                       ),
-                      const SizedBox(width: 16),
+                      const SizedBox(width: 24),
 
                       Container(
-                        margin: const EdgeInsets.only(top: 40),
-                        width: r.w(0.5),
-                        height: r.h(0.5),
+                        width: r.w(0.28),
+                        height: r.w(0.20),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(20),
                           border: Border.all(
                             color: const Color(0xFF009DFF),
-                            width: 4,
+                            width: 3,
                           ),
                         ),
                         child: Container(
                           decoration: BoxDecoration(
                             color: const Color(0xFF28EFEF),
                             borderRadius: BorderRadius.circular(20),
-                            border: Border.all(
-                              color: const Color(0xFF000000),
-                              width: 8,
-                            ),
+                            border: Border.all(color: Colors.black, width: 6),
                           ),
-
                           child: Lottie.asset(
                             "assets/lottie/shy_with_bugs.json",
                           ),
                         ),
                       ),
+                      const SizedBox(width: 16),
 
-                      SizedBox(width: 8),
+                      /// AI Name
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            "V. E. E.",
+                            style: TextStyle(
+                              color: Color(0xFF009DFF),
+                              fontSize: 35,
+                              fontWeight: FontWeight.bold,
+                              fontFamily: "digital",
+                            ),
+                          ),
+
+                          const SizedBox(height: 8),
+
+                          Row(
+                            children: [
+                              Image.asset(
+                                "assets/appIcons/arcade_icon.png",
+                                height: 30,
+                                width: 30,
+                              ),
+                              const SizedBox(width: 8),
+                              Image.asset(
+                                "assets/appIcons/heart_icon.png",
+                                height: 30,
+                                width: 30,
+                              ),
+                              const SizedBox(width: 8),
+
+                              Image.asset(
+                                "assets/appIcons/sky_icon.png",
+                                height: 30,
+                                width: 30,
+                              ),
+                              const SizedBox(width: 8),
+
+                              Image.asset(
+                                "assets/appIcons/sci_icon.png",
+                                height: 30,
+                                width: 30,
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ],
                   ),
                 ),
@@ -94,7 +145,6 @@ class _AiChatPageState extends State<AiChatPage> {
             ),
           ),
 
-          /// 🔷 MAIN CONTAINER WITH IMAGE BACKGROUND
           Expanded(
             child: ClipRRect(
               borderRadius: const BorderRadius.only(
@@ -109,12 +159,11 @@ class _AiChatPageState extends State<AiChatPage> {
                       "assets/images/smooth_ice_fishing_wallpaper.png",
                     ),
                     fit: BoxFit.cover,
+                    opacity: 0.50,
                   ),
                 ),
                 child: Column(
                   children: [
-
-                    /// 💬 Messages
                     Expanded(
                       child: ListView.builder(
                         reverse: true,
@@ -127,7 +176,6 @@ class _AiChatPageState extends State<AiChatPage> {
                       ),
                     ),
 
-                    /// ✏️ Input Bar
                     Padding(
                       padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
                       child: Row(
@@ -139,7 +187,7 @@ class _AiChatPageState extends State<AiChatPage> {
                               decoration: InputDecoration(
                                 hintText: "Send a message...",
                                 filled: true,
-                                fillColor: Colors.white.withOpacity(0.9),
+                                fillColor: Colors.white.withValues(alpha: 0.9),
                                 contentPadding: const EdgeInsets.symmetric(
                                   horizontal: 16,
                                   vertical: 12,
@@ -164,8 +212,8 @@ class _AiChatPageState extends State<AiChatPage> {
                                 borderRadius: BorderRadius.circular(16),
                               ),
                               child: Image.asset(
-                                "assets/appIcons/send_icon.png"
-                                , fit: BoxFit.fill
+                                "assets/appIcons/send_icon.png",
+                                fit: BoxFit.fill,
                               ),
                             ),
                           ),
@@ -201,15 +249,12 @@ class _ChatBubble extends StatelessWidget {
         margin: const EdgeInsets.symmetric(vertical: 6),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         constraints: BoxConstraints(
-          maxWidth: MediaQuery
-              .of(context)
-              .size
-              .width * 0.75,
+          maxWidth: MediaQuery.of(context).size.width * 0.75,
         ),
         decoration: BoxDecoration(
           color: isUser
-              ? const Color.fromARGB(255, 6, 50, 87)
-              : Colors.white.withOpacity(0.9),
+              ? const Color.fromARGB(255, 11, 118, 209)
+              : Colors.white.withValues(alpha: 0.9),
           borderRadius: BorderRadius.only(
             topLeft: const Radius.circular(20),
             topRight: const Radius.circular(20),

@@ -1,9 +1,9 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:walkie_talkie/constants/constants.dart';
-import 'package:walkie_talkie/models/weather/current_weather.dart';
-
+import '../../models/weather/current_weather.dart';
 import '../../models/weather/forecast_weather.dart';
+
 
 class WeatherService {
   final Dio dio;

@@ -22,7 +22,6 @@ class ChatCard extends StatelessWidget {
           : MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        // 🟣 Vee's avatar (only if not user and showAvatar is true)
         if (!isUser && showAvatar)
           Padding(
             padding: const EdgeInsets.only(left: 8, right: 6),
@@ -33,7 +32,6 @@ class ChatCard extends StatelessWidget {
             ),
           ),
 
-        // 🟢 Message bubble
         Flexible(
           child: Container(
             margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
@@ -52,7 +50,7 @@ class ChatCard extends StatelessWidget {
               ),
             ),
             child: isTyping
-                ? const _TypingDots() // 🟢 Typing animation
+                ? const _TypingDots()
                 : Text(
                     text,
                     style: const TextStyle(color: Colors.white, fontSize: 16),
@@ -64,7 +62,6 @@ class ChatCard extends StatelessWidget {
   }
 }
 
-// 🟣 Typing animation widget (3 bouncing dots)
 class _TypingDots extends StatefulWidget {
   const _TypingDots();
 

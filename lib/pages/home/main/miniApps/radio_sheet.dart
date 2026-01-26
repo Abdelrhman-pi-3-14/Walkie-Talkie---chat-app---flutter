@@ -168,7 +168,7 @@ class _RadioBottomSheetContentState extends State<RadioBottomSheetContent>
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
                           color: isSelected
-                              ? const Color(0xFF00BBFF).withOpacity(0.2)
+                              ? const Color(0xFF00BBFF).withValues(alpha: 0.2)
                               : Colors.white12,
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(

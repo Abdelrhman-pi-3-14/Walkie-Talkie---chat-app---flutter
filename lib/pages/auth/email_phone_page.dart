@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../models/weather/userdata/user_data.dart';
+import '../../models/userdata/user_data.dart';
 
 class EmailPhonePage extends StatelessWidget {
   const EmailPhonePage({super.key});
@@ -8,20 +8,20 @@ class EmailPhonePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        _BasePage(
+        _basePage(
           title: "Email ",
           child: TextField(
-            onChanged: (v) => userData.instance.email = v,
+            onChanged: (v) => UserData.instance.email = v,
             style: const TextStyle(color: Colors.white),
             decoration: _inputDecoration("Email"),
 
           ),
         ),
         const SizedBox(height: 24),
-        _BasePage(
+        _basePage(
           title: " Phone",
           child: TextField(
-            onChanged: (v) => userData.instance.phone = v,
+            onChanged: (v) => UserData.instance.phone = v,
             style: const TextStyle(color: Colors.white),
             decoration: _inputDecoration("Phone"),
           ),
@@ -31,7 +31,7 @@ class EmailPhonePage extends StatelessWidget {
   }
 }
 
-Widget _BasePage({required String title, required Widget child}) {
+Widget _basePage({required String title, required Widget child}) {
   return Padding(
     padding: const EdgeInsets.all(24),
     child: Column(
@@ -56,7 +56,7 @@ Widget _BasePage({required String title, required Widget child}) {
 InputDecoration _inputDecoration(String hint) {
   return InputDecoration(
     hintText: hint,
-    hintStyle: TextStyle(color: Colors.lightBlueAccent.withOpacity(0.6)),
+    hintStyle: TextStyle(color: Colors.lightBlueAccent.withValues(alpha: 0.6)),
     filled: true,
     fillColor: const Color.fromARGB(255, 6, 55, 95),
     border: OutlineInputBorder(
