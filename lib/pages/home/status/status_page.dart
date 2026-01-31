@@ -135,6 +135,8 @@ class _StatusPageState extends State<StatusPage> {
                 title: "Camera",
                 onTap: () async {
                   final file = await imageService.pickFromCamera();
+
+                  if(!mounted) return;
                   Navigator.pop(context);
 
                   if (file != null) {
@@ -148,8 +150,9 @@ class _StatusPageState extends State<StatusPage> {
                 title: "Gallery",
                 onTap: () async {
                   final file = await imageService.pickFromGallery();
-                  Navigator.pop(context);
 
+                  if(!mounted) return;
+                  Navigator.pop(context);
                   if (file != null) {
                     debugPrint("Gallery image: ${file.path}");
                   }

@@ -86,7 +86,9 @@ class _MessagesPageState extends State<MessagesPage> {
             child: FloatingActionButton(
               backgroundColor: Color.fromARGB(255, 4, 40, 69),
               heroTag: "fab1",
-              onPressed: () {},
+              onPressed: () {
+                Navigator.pushNamed(context, AppRoutes.friendsPage);
+              },
               child: Image.asset("assets/appIcons/add_message.png"),
             ),
           ),

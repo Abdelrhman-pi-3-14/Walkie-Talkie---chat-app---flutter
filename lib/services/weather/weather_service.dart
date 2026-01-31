@@ -3,17 +3,17 @@ import 'package:flutter/foundation.dart';
 import 'package:walkie_talkie/constants/constants.dart';
 import '../../models/weather/current_weather.dart';
 import '../../models/weather/forecast_weather.dart';
+import '../../network/dio_clint.dart';
 
 
 class WeatherService {
-  final Dio dio;
+  final Dio _dioClient = DioClient().dio;
   final String apiKey;
 
-  WeatherService({required this.apiKey, Dio? dio})
-      : dio = dio ?? Dio();
+  WeatherService({required this.apiKey, Dio? dio});
 
   Future<CurrentWeather> getCurrentWeather(String cityName) async {
-    final response = await dio.get(
+    final response = await _dioClient.get(
       baseWeatherUrl,
       queryParameters: {
         "q": cityName,
@@ -28,7 +28,7 @@ class WeatherService {
   }
 
   Future<ForecastResponse> getForecast(String cityName) async {
-    final response = await dio.get(
+    final response = await _dioClient.get(
       baseForecastUrl,
       queryParameters: {
         "q": cityName,

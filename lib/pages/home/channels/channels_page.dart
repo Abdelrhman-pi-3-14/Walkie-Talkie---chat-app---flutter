@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:walkie_talkie/constants/app_routes.dart';
 
 class GroupPage extends StatefulWidget {
   const GroupPage({super.key});
@@ -64,7 +65,9 @@ class _GroupPageState extends State<GroupPage> {
               child: FloatingActionButton(
                   backgroundColor: Color.fromARGB(255, 0, 157, 255),
                   heroTag: "fab1",
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.pushNamed(context, AppRoutes.addChannelPage);
+                  },
               child: Text("ADD CHANNEL"),
             ),)
         ],

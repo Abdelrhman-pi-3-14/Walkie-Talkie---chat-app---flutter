@@ -23,7 +23,9 @@ dependencies:
   flutter_contacts: null
   permission_handler: null
   photo_manager: ^3.0.0
-
+  just_audio: null
+  audio_session: null
+  get_country_code_by_name: ^0.0.8
 
 
 dev_dependencies:

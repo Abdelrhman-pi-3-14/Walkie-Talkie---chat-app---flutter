@@ -93,13 +93,6 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
 
-              const ListTile(
-                leading: Icon(Icons.person_outline, color: Colors.white70),
-                title: Text(
-                  'Contacts',
-                  style: TextStyle(color: Colors.white),
-                ),
-              ),
 
               const Divider(color: Colors.white24),
 
@@ -356,7 +349,6 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
 
-          /// 🔷 MAIN CONTENT
           Expanded(
             child: Container(
               width: double.infinity,
@@ -370,7 +362,6 @@ class _HomePageState extends State<HomePage> {
               child: Column(
                 children: [
 
-                  /// 🔁 PageView
                   Expanded(
                     child: PageView.builder(
                       controller: _pageController,

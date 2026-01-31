@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:just_audio/just_audio.dart';
+import 'package:walkie_talkie/services/radio/radio_service.dart';
+import '../../../../models/radio/radio_model.dart';
 
 class RadioBottomSheetContent extends StatefulWidget {
   const RadioBottomSheetContent({super.key});
@@ -14,26 +17,80 @@ class _RadioBottomSheetContentState extends State<RadioBottomSheetContent>
   double _volume = 0.5;
   bool _isPlaying = false;
   int _selectedIndex = 0;
-  String _searchCountry = '';
-  String _searchStation = '';
 
-  final List<Station> stations = [
-    Station(freq: '98.3', name: 'Radio Mirchi', subtitle: 'Top 20', country: 'India', favorite: true),
-    Station(freq: '94.3', name: 'My FM', subtitle: 'Hits', country: 'India', favorite: true),
-    Station(freq: '93.5', name: 'Red FM', subtitle: 'Bollywood', country: 'India', favorite: false),
-    Station(freq: '104.0', name: 'Love FM', subtitle: 'Romance', country: 'USA', favorite: false),
-  ];
+  final AudioPlayer _player = AudioPlayer();
+
+  final TextEditingController _countryController = TextEditingController();
+  final TextEditingController _stationsController = TextEditingController();
+
+  final RadioService _radioService = RadioService();
+
+  List<RadioStation> stations = [];
+  List<RadioStation> _topStations = [];
+  RadioStation? selectedStation;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    _loadTopStations();
   }
 
   @override
   void dispose() {
+    _countryController.dispose();
+    _stationsController.dispose();
     _tabController.dispose();
     super.dispose();
+  }
+
+  Future<void> _loadTopStations() async {
+    try {
+      final topStations = await _radioService.getTopStations();
+      setState(() {
+        _topStations = topStations;
+        stations = topStations;
+      });
+    } catch (e) {
+      debugPrint("Failed to load top stations: $e");
+    }
+  }
+
+  Future<void> _search() async {
+    final country = _countryController.text.trim();
+    final name = _stationsController.text.trim();
+
+    if (country.isEmpty && name.isEmpty) {
+      setState(() => stations = _topStations);
+      return;
+    }
+
+    List<RadioStation> results = [];
+
+    try {
+      if (country.isNotEmpty) {
+        final byCountry = await _radioService.searchWithCountry(country);
+        results.addAll(byCountry);
+      }
+      if (name.isNotEmpty) {
+        final byName = await _radioService.searchByName(name);
+        results.addAll(byName);
+      }
+
+      final uniqueResults = <String, RadioStation>{};
+      for (var station in results) {
+        uniqueResults[station.stationUuid] = station;
+      }
+
+      setState(() {
+        stations = uniqueResults.values.toList();
+        _selectedIndex = 0;
+        selectedStation = stations.isNotEmpty ? stations[0] : null;
+      });
+    } catch (e) {
+      debugPrint("Search failed: $e");
+      setState(() => stations = _topStations); // fallback
+    }
   }
 
   void _togglePlay() {
@@ -43,30 +100,32 @@ class _RadioBottomSheetContentState extends State<RadioBottomSheetContent>
   void _selectStation(int index) {
     setState(() {
       _selectedIndex = index;
+      selectedStation = stations[index];
       _tabController.animateTo(1);
       _isPlaying = true;
     });
   }
 
+  Future<void> playRadioStation(String streamUrl) async {
+    try {
+      await _player.stop();
+      await _player.setUrl(streamUrl);
+      await _player.play();
+    } catch (e) {
+      debugPrint('Radio play error: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final filteredStations = stations.where((s) {
-      return s.country.toLowerCase().contains(_searchCountry.toLowerCase()) &&
-          s.name.toLowerCase().contains(_searchStation.toLowerCase());
-    }).toList();
-
-    final selectedStation = stations[_selectedIndex];
-
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFF041f45), // dark blue like HomePage
         borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Drag handle
           Center(
             child: Container(
               width: 60,
@@ -78,19 +137,15 @@ class _RadioBottomSheetContentState extends State<RadioBottomSheetContent>
             ),
           ),
           const SizedBox(height: 12),
-          // Header + tabs
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Retro Radio',
-                style: TextStyle(
-                  color: Color(0xFF00BBFF), // match HomePage accent
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  fontFamily: 'Courier',
-                ),
+              Image.asset(
+                "assets/appIcons/radio_icon.png",
+                height: 70,
+                width: 70,
               ),
+              const SizedBox(width: 16),
               Expanded(
                 child: Align(
                   alignment: Alignment.centerRight,
@@ -109,12 +164,11 @@ class _RadioBottomSheetContentState extends State<RadioBottomSheetContent>
             ],
           ),
           const SizedBox(height: 12),
-          // Two mini search bars
           Row(
             children: [
               Expanded(
                 child: TextField(
-                  onChanged: (v) => setState(() => _searchCountry = v),
+                  controller: _countryController,
                   style: const TextStyle(color: Color(0xFF00BBFF)),
                   decoration: InputDecoration(
                     hintText: 'Country',
@@ -132,7 +186,7 @@ class _RadioBottomSheetContentState extends State<RadioBottomSheetContent>
               const SizedBox(width: 8),
               Expanded(
                 child: TextField(
-                  onChanged: (v) => setState(() => _searchStation = v),
+                  controller: _stationsController,
                   style: const TextStyle(color: Color(0xFF00BBFF)),
                   decoration: InputDecoration(
                     hintText: 'Station Name',
@@ -147,28 +201,42 @@ class _RadioBottomSheetContentState extends State<RadioBottomSheetContent>
                   ),
                 ),
               ),
+              const SizedBox(width: 8),
+              InkWell(
+                onTap: _search,
+                child: SizedBox(
+                  height: 48,
+                  width: 48,
+                  child: Image.asset(
+                    "assets/appIcons/search_icon.png",
+                    color: Colors.lightBlueAccent,
+                  ),
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 12),
-          // TabBarView
           Expanded(
             child: TabBarView(
               controller: _tabController,
               children: [
-                // Stations tab
+                // Stations List
                 ListView.separated(
-                  itemCount: filteredStations.length,
+                  itemCount: stations.length,
                   separatorBuilder: (_, __) => const SizedBox(height: 8),
                   itemBuilder: (context, index) {
-                    final s = filteredStations[index];
-                    final isSelected = s == stations[_selectedIndex];
+                    final s = stations[index];
+                    final isSelected = s == selectedStation;
                     return GestureDetector(
-                      onTap: () => _selectStation(stations.indexOf(s)),
+                      onTap: () {
+                        _selectStation(index);
+                        playRadioStation(stations[index].url);
+                      },
                       child: Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
                           color: isSelected
-                              ? const Color(0xFF00BBFF).withValues(alpha: 0.2)
+                              ? const Color(0xFF00BBFF).withOpacity(0.2)
                               : Colors.white12,
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
@@ -179,7 +247,6 @@ class _RadioBottomSheetContentState extends State<RadioBottomSheetContent>
                         ),
                         child: Row(
                           children: [
-                            // Frequency
                             Container(
                               width: 60,
                               padding: const EdgeInsets.symmetric(vertical: 8),
@@ -187,29 +254,18 @@ class _RadioBottomSheetContentState extends State<RadioBottomSheetContent>
                                 color: Colors.white10,
                                 borderRadius: BorderRadius.circular(8),
                               ),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    s.freq,
-                                    style: const TextStyle(
-                                      color: Color(0xFF00BBFF),
-                                      fontWeight: FontWeight.bold,
-                                      fontFamily: 'Courier',
-                                    ),
+                              child: Center(
+                                child: Text(
+                                  s.bitrate.toString(),
+                                  style: const TextStyle(
+                                    color: Color(0xFF00BBFF),
+                                    fontWeight: FontWeight.bold,
+                                    fontFamily: 'Courier',
                                   ),
-                                  const Text(
-                                    'FM',
-                                    style: TextStyle(
-                                      color: Colors.white54,
-                                      fontSize: 12,
-                                    ),
-                                  ),
-                                ],
+                                ),
                               ),
                             ),
                             const SizedBox(width: 12),
-                            // Station info
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -222,7 +278,7 @@ class _RadioBottomSheetContentState extends State<RadioBottomSheetContent>
                                     ),
                                   ),
                                   Text(
-                                    '${s.subtitle} • ${s.country}',
+                                    s.country,
                                     style: const TextStyle(
                                       color: Colors.white54,
                                       fontSize: 12,
@@ -231,15 +287,8 @@ class _RadioBottomSheetContentState extends State<RadioBottomSheetContent>
                                 ],
                               ),
                             ),
-                            // Favorite
                             IconButton(
-                              onPressed: () {
-                                setState(() {
-                                  final idx = stations.indexOf(s);
-                                  stations[idx] =
-                                      s.copyWith(favorite: !s.favorite);
-                                });
-                              },
+                              onPressed: () {},
                               icon: Icon(
                                 s.favorite
                                     ? Icons.favorite
@@ -255,12 +304,12 @@ class _RadioBottomSheetContentState extends State<RadioBottomSheetContent>
                     );
                   },
                 ),
-                // Now Playing tab
+                // Now Playing
                 Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      selectedStation.freq,
+                      selectedStation?.bitrate.toString() ?? '--',
                       style: const TextStyle(
                         color: Color(0xFF00BBFF),
                         fontSize: 72,
@@ -270,20 +319,23 @@ class _RadioBottomSheetContentState extends State<RadioBottomSheetContent>
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      '${selectedStation.name} - ${selectedStation.subtitle}',
+                      selectedStation != null
+                          ? selectedStation!.name
+                          : 'Select a station',
                       style: const TextStyle(
                         color: Colors.white70,
                         fontSize: 16,
                       ),
                     ),
                     const SizedBox(height: 20),
-                    // Play / Volume
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         IconButton(
-                          icon: const Icon(Icons.volume_up,
-                              color: Colors.white70),
+                          icon: const Icon(
+                            Icons.volume_up,
+                            color: Colors.white70,
+                          ),
                           onPressed: () {},
                         ),
                         Slider(
@@ -312,39 +364,6 @@ class _RadioBottomSheetContentState extends State<RadioBottomSheetContent>
           ),
         ],
       ),
-    );
-  }
-}
-
-/// Station model
-class Station {
-  final String freq;
-  final String name;
-  final String subtitle;
-  final String country;
-  final bool favorite;
-
-  Station({
-    required this.freq,
-    required this.name,
-    required this.subtitle,
-    this.country = '',
-    this.favorite = false,
-  });
-
-  Station copyWith({
-    String? freq,
-    String? name,
-    String? subtitle,
-    String? country,
-    bool? favorite,
-  }) {
-    return Station(
-      freq: freq ?? this.freq,
-      name: name ?? this.name,
-      subtitle: subtitle ?? this.subtitle,
-      country: country ?? this.country,
-      favorite: favorite ?? this.favorite,
     );
   }
 }
