@@ -37,7 +37,7 @@ class _AiChatPageState extends State<AiChatPage> {
         children: [
           Container(
             height: r.h(0.18),
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
             decoration: BoxDecoration(
               color: const Color(0xFF1B1B2F), // dark walkie-talkie background
               borderRadius: BorderRadius.circular(16),

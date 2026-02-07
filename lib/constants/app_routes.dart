@@ -1,8 +1,10 @@
 import 'package:flutter/cupertino.dart';
+import 'package:walkie_talkie/pages/auth/first_page.dart';
 import 'package:walkie_talkie/pages/home/chats/friends_page.dart';
 import 'package:walkie_talkie/pages/home/status/write_something_page.dart';
 import 'package:walkie_talkie/pages/settings_page.dart';
 
+import '../pages/auth/log_in_page.dart';
 import '../pages/home/channels/add_channel_page.dart';
 import '../pages/home/chats/aiChat/ai_chat_page.dart';
 import '../pages/auth/auth_page.dart';
@@ -21,11 +23,16 @@ class AppRoutes {
   static const String writeSomething = '/writeSomething';
   static const String friendsPage = '/friendsPage';
   static const String addChannelPage = '/addChannel';
+  static const String registerPage = "/register";
+  static const String logInPage = "/logIn";
+
 
 
   static Map<String, WidgetBuilder> routes() {
     return {
-      auth: (context) => const AuthPage(),
+      auth: (context) => const AuthFirstPage(),
+      registerPage : (context) => const AuthPage(),
+      logInPage : (context) => const LogInPage(),
       home: (context) => const HomePage(),
       aiChat: (context) => const AiChatPage(),
       settings : (context) => const SettingsPage(),

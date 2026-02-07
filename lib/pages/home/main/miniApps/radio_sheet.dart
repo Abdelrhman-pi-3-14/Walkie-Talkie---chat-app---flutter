@@ -17,6 +17,7 @@ class _RadioBottomSheetContentState extends State<RadioBottomSheetContent>
   double _volume = 0.5;
   bool _isPlaying = false;
   int _selectedIndex = 0;
+  late String _selectedUrl;
 
   final AudioPlayer _player = AudioPlayer();
 
@@ -93,10 +94,6 @@ class _RadioBottomSheetContentState extends State<RadioBottomSheetContent>
     }
   }
 
-  void _togglePlay() {
-    setState(() => _isPlaying = !_isPlaying);
-  }
-
   void _selectStation(int index) {
     setState(() {
       _selectedIndex = index;
@@ -113,6 +110,17 @@ class _RadioBottomSheetContentState extends State<RadioBottomSheetContent>
       await _player.play();
     } catch (e) {
       debugPrint('Radio play error: $e');
+    }
+  }
+
+  Future<void> playRadio(String url) async {
+    setState(() => _isPlaying = !_isPlaying);
+
+    if (_isPlaying) {
+      await _player.setUrl(url);
+      await _player.play();
+    } else {
+      await _player.stop();
     }
   }
 
@@ -231,6 +239,7 @@ class _RadioBottomSheetContentState extends State<RadioBottomSheetContent>
                       onTap: () {
                         _selectStation(index);
                         playRadioStation(stations[index].url);
+                        _selectedUrl = stations[index].url;
                       },
                       child: Container(
                         padding: const EdgeInsets.all(12),
@@ -350,7 +359,9 @@ class _RadioBottomSheetContentState extends State<RadioBottomSheetContent>
                     ),
                     const SizedBox(height: 12),
                     FloatingActionButton(
-                      onPressed: _togglePlay,
+                      onPressed: () {
+                        playRadio(_selectedUrl);
+                      },
                       backgroundColor: const Color(0xFF00BBFF),
                       child: Icon(
                         _isPlaying ? Icons.pause : Icons.play_arrow,
