@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:walkie_talkie/models/userdata/register_user.dart';
+import 'package:walkie_talkie/models/userdata/user_data.dart';
 import 'package:walkie_talkie/pages/auth/email_phone_page.dart';
 import 'package:walkie_talkie/pages/auth/gender_page.dart';
 import 'package:walkie_talkie/pages/auth/image_bio_page.dart';
 import 'package:walkie_talkie/pages/auth/password_page.dart';
+import 'package:walkie_talkie/services/auth/auth_service.dart';
 
 import '../../constants/app_routes.dart';
 import 'name_page.dart';
@@ -19,6 +22,8 @@ class _AuthPageState extends State<AuthPage> {
   late PageController _pageController;
 
   final int pageCount = 5;
+
+  AuthService _authService = AuthService();
 
   @override
   void initState() {
@@ -56,7 +61,6 @@ class _AuthPageState extends State<AuthPage> {
 
   @override
   Widget build(BuildContext context) {
-
     final bool isLastPage = _currentIndex == pageCount - 1;
 
     return Scaffold(
@@ -64,6 +68,7 @@ class _AuthPageState extends State<AuthPage> {
       body: SafeArea(
         child: Column(
           children: [
+
             /// Pages
             Expanded(
               child: PageView.builder(
@@ -135,7 +140,24 @@ class _AuthPageState extends State<AuthPage> {
                   ),
 
                   GestureDetector(
-                    onTap: isLastPage ? _goToHome : _nextPage,
+                    onTap: () {
+                      if (isLastPage) {
+                        _authService.userRegister(
+                            RegisterUser(firstName: UserData.instance.firstName,
+                                lastName: UserData.instance.lastName,
+                                email: UserData.instance.email,
+                                phoneNumber: UserData.instance.phone,
+                                password: UserData.instance.password,
+                                password2: UserData.instance.password,
+                                gender: UserData.instance.gender,
+                                imageUrl: UserData.instance.image,
+                                bio: UserData.instance.bio)
+                        );
+                      _goToHome();
+                    } else {
+                        _nextPage();
+                      }
+                    },
                     child: Text(
                       isLastPage ? "Start" : "Next",
                       style: TextStyle(
