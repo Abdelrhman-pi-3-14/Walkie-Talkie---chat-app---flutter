@@ -1,8 +1,6 @@
-import 'package:flutter/foundation.dart';
 
 class AiTextData {
   String content = "";
-
   String sender = "";
   String time = "";
 

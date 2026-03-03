@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
+import 'package:walkie_talkie/services/ai/ai_service.dart';
 
 import '../../../../constants/rosponsive_helper.dart';
 
@@ -13,10 +14,12 @@ class AiChatPage extends StatefulWidget {
 class _AiChatPageState extends State<AiChatPage> {
   final TextEditingController _controller = TextEditingController();
   final List<_Message> _messages = [];
+  final AiService _aiService = AiService();
 
   void sendMessage() {
     final text = _controller.text.trim();
     if (text.isEmpty) return;
+    _aiService.sendMessageToAi(false, text);
 
     setState(() {
       _messages.insert(0, _Message(text, true));
