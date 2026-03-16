@@ -1,14 +1,15 @@
+// constants/app_routes.dart
 import 'package:flutter/cupertino.dart';
-import 'package:walkie_talkie/pages/auth/first_page.dart';
-import 'package:walkie_talkie/pages/home/chats/friends_page.dart';
-import 'package:walkie_talkie/pages/home/status/write_something_page.dart';
-import 'package:walkie_talkie/pages/settings_page.dart';
+import 'package:walkie_talkie/presentation/pages/auth/first_page.dart';
+import 'package:walkie_talkie/presentation/pages/home/chats/friends_page.dart';
+import 'package:walkie_talkie/presentation/pages/home/status/write_something_page.dart';
+import 'package:walkie_talkie/presentation/pages/settings_page.dart';
 
-import '../pages/auth/log_in_page.dart';
-import '../pages/home/channels/add_channel_page.dart';
-import '../pages/home/chats/aiChat/ai_chat_page.dart';
-import '../pages/auth/auth_page.dart';
-import '../pages/home/main/home_page.dart';
+import '../presentation/pages/auth/log_in_page.dart';
+import '../presentation/pages/home/channels/add_channel_page.dart';
+import '../presentation/pages/home/chats/aiChat/ai_chat_page.dart';
+import '../presentation/pages/auth/auth_page.dart';
+import '../presentation/pages/home/main/home_page.dart';
 
 class AppRoutes {
   static const String authWarpper = '/';
