@@ -9,7 +9,7 @@ import '../presentation/pages/auth/log_in_page.dart';
 import '../presentation/pages/home/channels/add_channel_page.dart';
 import '../presentation/pages/home/chats/aiChat/ai_chat_page.dart';
 import '../presentation/pages/auth/auth_page.dart';
-import '../presentation/pages/home/main/home_page.dart';
+import '../presentation/pages/home/main/home_screen/screens/home_page.dart';
 
 class AppRoutes {
   static const String authWarpper = '/';

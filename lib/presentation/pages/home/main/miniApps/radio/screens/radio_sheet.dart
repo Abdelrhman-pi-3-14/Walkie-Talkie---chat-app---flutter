@@ -1,8 +1,8 @@
-// presentation/pages/home/main/miniApps/radio_sheet.dart
+// presentation/pages/home/main/miniApps/radio/screens/radio_sheet.dart
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
-import 'package:walkie_talkie/data/services/radio/radio_service.dart';
-import '../../../../../data/models/radio/radio_model.dart';
+import 'package:walkie_talkie/data/services/web_services/radio/radio_service.dart';
+import '../../../../../../../data/models/radio/radio_model.dart';
 
 class RadioBottomSheetContent extends StatefulWidget {
   const RadioBottomSheetContent({super.key});
@@ -74,10 +74,7 @@ class _RadioBottomSheetContentState extends State<RadioBottomSheetContent>
         final byCountry = await _radioService.searchWithCountry(country);
         results.addAll(byCountry);
       }
-      if (name.isNotEmpty) {
-        final byName = await _radioService.searchByName(name);
-        results.addAll(byName);
-      }
+      
 
       final uniqueResults = <String, RadioStation>{};
       for (var station in results) {

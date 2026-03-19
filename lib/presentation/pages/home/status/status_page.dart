@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../constants/app_routes.dart';
-import '../../../../data/services/pickImages/pick_image_service.dart';
+import '../../../../data/services/local_services/pickImages/pick_image_service.dart';
 
 class StatusPage extends StatefulWidget {
   const StatusPage({super.key});

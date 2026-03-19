@@ -1,9 +1,9 @@
-// presentation/pages/home/main/miniApps/weather_sheet.dart
+// presentation/pages/home/main/miniApps/weather/screens/weather_sheet.dart
 import 'package:flutter/material.dart';
-import 'package:walkie_talkie/data/services/weather/weather_service.dart';
+import 'package:walkie_talkie/data/services/web_services/weather/weather_service.dart';
 
-import '../../../../../data/models/weather/current_weather.dart';
-import '../../../../../data/models/weather/forecast_weather.dart';
+import '../../../../../../../data/models/weather/current_weather.dart';
+import '../../../../../../../data/models/weather/forecast_weather.dart';
 
 
 class WeatherBottomSheetContent extends StatefulWidget {
@@ -18,7 +18,6 @@ class _WeatherBottomSheetContentState extends State<WeatherBottomSheetContent> {
   final TextEditingController _cityController = TextEditingController();
 
   final WeatherService weatherService = WeatherService(
-    apiKey: "39225e8f147355a3be91fac642fa161a",
   );
 
   bool isLoadingWeather = false;

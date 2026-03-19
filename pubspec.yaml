@@ -26,6 +26,9 @@ dependencies:
   just_audio: null
   audio_session: null
   get_country_code_by_name: ^0.0.8
+  hive : null 
+  flutter_bloc : null 
+  flutter_offline: ^6.0.0
 
 
 dev_dependencies:

@@ -1,3 +1,4 @@
+// constants/rosponsive_helper.dart
 
 import 'package:flutter/cupertino.dart';
 
@@ -5,9 +6,8 @@ class Responsive {
   final Size size;
   final Orientation orientation;
 
-  Responsive(BuildContext context)
-      : size = MediaQuery.of(context).size,
-        orientation = MediaQuery.of(context).orientation;
+  Responsive(BuildContext context): size = MediaQuery.of(context).size,
+  orientation = MediaQuery.of(context).orientation;
 
   bool get isSmallPhone => size.width < 360;
   bool get isPhone => size.width < 600;

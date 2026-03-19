@@ -1,17 +1,19 @@
-// data/services/weather/weather_service.dart
+// data/services/web_services/weather/weather_service.dart
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:walkie_talkie/constants/constants.dart';
-import '../../models/weather/current_weather.dart';
-import '../../models/weather/forecast_weather.dart';
-import '../../network/dio_clint.dart';
+import '../../../models/weather/current_weather.dart';
+import '../../../models/weather/forecast_weather.dart';
+import '../../../network/dio_clint.dart';
 
 
 class WeatherService {
+  
   final Dio _dioClient = DioClient().dio;
-  final String apiKey;
+   String? apiKey = dotenv.env['WEATHER_API_KEY'];
 
-  WeatherService({required this.apiKey, Dio? dio});
+  
 
   Future<CurrentWeather> getCurrentWeather(String cityName) async {
     final response = await _dioClient.get(

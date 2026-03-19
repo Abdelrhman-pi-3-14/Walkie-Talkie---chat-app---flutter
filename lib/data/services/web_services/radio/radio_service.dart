@@ -1,10 +1,10 @@
-// data/services/radio/radio_service.dart
+// data/services/web_services/radio/radio_service.dart
 
 import 'package:dio/dio.dart';
 import 'package:get_country_code_by_name/get_country_code_by_name.dart';
-import '../../../constants/radio_server_manger.dart';
-import '../../models/radio/radio_model.dart';
-import '../../network/dio_clint.dart';
+import '../../../../constants/radio_server_manger.dart';
+import '../../../models/radio/radio_model.dart';
+import '../../../network/dio_clint.dart';
 
 class RadioService {
   final RadioServerManager _serverManager = RadioServerManager();
@@ -34,7 +34,7 @@ class RadioService {
   }
 
 
-  Future<List<RadioStation>> getTopStations({int limit = 20}) async {
+  Future<List<RadioStation>> getTopStations({int limit = 70}) async {
     final response =
     await _safeGet('/json/stations/topclick/$limit');
 
@@ -52,13 +52,6 @@ class RadioService {
     
   }
 
-  Future<List<RadioStation>> searchByName(String name) async {
-    final response = await _safeGet(
-      '/json/stations/search?name=${Uri.encodeComponent(name)}',
-    );
-    final List data = response.data as List;
-    return data.map((e) => RadioStation.fromJson(e)).toList();
-  }
 
 
 }

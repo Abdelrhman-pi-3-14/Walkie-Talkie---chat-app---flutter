@@ -1,7 +1,7 @@
 // presentation/pages/home/chats/aiChat/ai_chat_page.dart
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
-import 'package:walkie_talkie/data/services/ai/ai_service.dart';
+import 'package:walkie_talkie/data/services/web_services/ai/ai_service.dart';
 
 import '../../../../../constants/rosponsive_helper.dart';
 
@@ -24,8 +24,9 @@ class _AiChatPageState extends State<AiChatPage> {
 
     setState(() {
       _messages.insert(0, _Message(text, true));
-      if(!_aiService.isLoading)
-      _messages.insert(0, _Message(_aiService.reply, false));
+      if(!_aiService.isLoading) {
+        _messages.insert(0, _Message(_aiService.reply, false));
+      }
     });
 
     _controller.clear();

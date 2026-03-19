@@ -6,7 +6,7 @@ import 'package:walkie_talkie/presentation/pages/auth/email_phone_page.dart';
 import 'package:walkie_talkie/presentation/pages/auth/gender_page.dart';
 import 'package:walkie_talkie/presentation/pages/auth/image_bio_page.dart';
 import 'package:walkie_talkie/presentation/pages/auth/password_page.dart';
-import 'package:walkie_talkie/data/services/auth/auth_service.dart';
+import 'package:walkie_talkie/data/services/web_services/auth/auth_service.dart';
 
 import '../../../constants/app_routes.dart';
 import 'name_page.dart';
@@ -24,7 +24,7 @@ class _AuthPageState extends State<AuthPage> {
 
   final int pageCount = 5;
 
-  AuthService _authService = AuthService();
+  final AuthService _authService = AuthService();
 
   @override
   void initState() {

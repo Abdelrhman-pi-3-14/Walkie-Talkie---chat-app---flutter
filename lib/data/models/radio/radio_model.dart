@@ -1,3 +1,4 @@
+// data/models/radio/radio_model.dart
 class RadioStation {
   final String changeUuid;
   final String stationUuid;
@@ -23,13 +24,13 @@ class RadioStation {
   final bool hls;
 
   final bool lastCheckOk;
+  bool favorite;
   final int clickCount;
   final int clickTrend;
 
   final DateTime lastChangeTime;
   final DateTime clickTime;
 
-  bool favorite;
 
   RadioStation({
     required this.changeUuid,
