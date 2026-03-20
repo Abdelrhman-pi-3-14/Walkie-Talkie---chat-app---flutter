@@ -41,17 +41,19 @@ class RadioService {
     final List data = response.data as List;
     return data.map((e) => RadioStation.fromJson(e)).toList();
   }
+Future<List<RadioStation>> searchWithCountry(String countryName) async {
+  final code = resolver.getCountryCode(countryName);
 
-
-  Future<List<RadioStation>> searchWithCountry(String countryName) async {
-    final response = await _safeGet(
-      '/json/stations/search?countrycode=${resolver.getCountryCode(countryName)}',
-    );
-    final List data = response.data as List;
-    return data.map((e) => RadioStation.fromJson(e)).toList();
-    
+  if (code == null || code.isEmpty) {
+    throw Exception('Invalid country name: $countryName');
   }
 
+  final response = await _safeGet(
+    '/json/stations/search?countrycode=$code',
+  );
 
+  final List data = response.data as List;
+  return data.map((e) => RadioStation.fromJson(e)).toList();
+}
 
 }

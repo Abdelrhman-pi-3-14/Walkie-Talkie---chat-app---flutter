@@ -1,3 +1,4 @@
+// test/widget_test.dart
 // This is a basic Flutter widget test.
 //
 // To perform an interaction with a widget in your test, use the WidgetTester
@@ -7,13 +8,19 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:hive/hive.dart';
 
 import 'package:walkie_talkie/main.dart';
 
 void main() {
+  final Box weatherBox;
+  final Box radioBox;
   testWidgets('Counter increments smoke test', (WidgetTester tester) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+
+    await tester.pumpWidget(
+      const MyApp(weatherBox: weatherBox, radioBox: radioBox),
+    );
 
     // Verify that our counter starts at 0.
     expect(find.text('0'), findsOneWidget);

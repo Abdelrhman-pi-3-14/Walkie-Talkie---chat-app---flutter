@@ -1,115 +1,132 @@
 // presentation/pages/home/main/miniApps/radio/screens/radio_sheet.dart
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:just_audio/just_audio.dart';
-import 'package:walkie_talkie/data/services/web_services/radio/radio_service.dart';
+import 'package:walkie_talkie/bussnies_logic/cubit/radio_cubit/radio_cubit.dart';
 import '../../../../../../../data/models/radio/radio_model.dart';
-
-class RadioBottomSheetContent extends StatefulWidget {
+class RadioBottomSheetContent extends StatelessWidget {
   const RadioBottomSheetContent({super.key});
 
   @override
-  State<RadioBottomSheetContent> createState() =>
-      _RadioBottomSheetContentState();
+  Widget build(BuildContext context) {
+    return DefaultTabController(
+      length: 3,
+      child: Column(
+        children: [
+          const SizedBox(height: 10),
+
+          /// Top Handle
+          Container(
+            width: 60,
+            height: 4,
+            decoration: BoxDecoration(
+              color: Colors.white24,
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+
+          const SizedBox(height: 12),
+
+          /// Tabs
+          const TabBar(
+            tabs: [
+              Tab(text: "Stations"),
+              Tab(text: "Favorites"),
+              Tab(text: "Now Playing"),
+            ],
+          ),
+
+          /// Search
+          Padding(
+            padding: const EdgeInsets.all(8),
+            child: TextField(
+              decoration: const InputDecoration(
+                hintText: "Search country",
+              ),
+              onSubmitted: (value) {
+                context.read<RadioCubit>().search(value);
+              },
+            ),
+          ),
+
+          /// Content
+          Expanded(
+            child: BlocBuilder<RadioCubit, RadioState>(
+              builder: (context, state) {
+                if (state is RadioLoading) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                if (state is RadioError) {
+                  return Center(child: Text(state.message));
+                }
+
+                if (state is RadioLoaded) {
+                  return TabBarView(
+                    children: [
+                      _RadioList(state.stations),
+                      _RadioList(state.favorites),
+                      _NowPlaying(state.selectedStation),
+                    ],
+                  );
+                }
+
+                return const SizedBox();
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
-class _RadioBottomSheetContentState extends State<RadioBottomSheetContent>
-    with SingleTickerProviderStateMixin {
-  late TabController _tabController;
-  double _volume = 0.5;
-  bool _isPlaying = false;
-  int _selectedIndex = 0;
-  late String _selectedUrl;
+class _RadioList extends StatelessWidget {
+  final List<RadioStation> stations;
 
+  const _RadioList(this.stations);
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      itemCount: stations.length,
+      itemBuilder: (context, index) {
+        final s = stations[index];
+
+        return ListTile(
+          title: Text(s.name),
+          subtitle: Text(s.country),
+          onTap: () {
+            context.read<RadioCubit>().selectStation(s);
+          },
+          trailing: IconButton(
+            onPressed: () {
+              context.read<RadioCubit>().toggleFavorite(s);
+            },
+            icon: Icon(
+              s.favorite ? Icons.favorite : Icons.favorite_border,
+              color: s.favorite ? Colors.red : null,
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _NowPlaying extends StatefulWidget {
+  final RadioStation? station;
+
+  const _NowPlaying(this.station);
+
+  @override
+  State<_NowPlaying> createState() => _NowPlayingState();
+}
+
+class _NowPlayingState extends State<_NowPlaying> {
   final AudioPlayer _player = AudioPlayer();
-
-  final TextEditingController _countryController = TextEditingController();
-  final TextEditingController _stationsController = TextEditingController();
-
-  final RadioService _radioService = RadioService();
-
-  List<RadioStation> stations = [];
-  List<RadioStation> _topStations = [];
-  RadioStation? selectedStation;
-
-  @override
-  void initState() {
-    super.initState();
-    _tabController = TabController(length: 2, vsync: this);
-    _loadTopStations();
-  }
-
-  @override
-  void dispose() {
-    _countryController.dispose();
-    _stationsController.dispose();
-    _tabController.dispose();
-    super.dispose();
-  }
-
-  Future<void> _loadTopStations() async {
-    try {
-      final topStations = await _radioService.getTopStations();
-      setState(() {
-        _topStations = topStations;
-        stations = topStations;
-      });
-    } catch (e) {
-      debugPrint("Failed to load top stations: $e");
-    }
-  }
-
-  Future<void> _search() async {
-    final country = _countryController.text.trim();
-    final name = _stationsController.text.trim();
-
-    if (country.isEmpty && name.isEmpty) {
-      setState(() => stations = _topStations);
-      return;
-    }
-
-    List<RadioStation> results = [];
-
-    try {
-      if (country.isNotEmpty) {
-        final byCountry = await _radioService.searchWithCountry(country);
-        results.addAll(byCountry);
-      }
-      
-
-      final uniqueResults = <String, RadioStation>{};
-      for (var station in results) {
-        uniqueResults[station.stationUuid] = station;
-      }
-
-      setState(() {
-        stations = uniqueResults.values.toList();
-        _selectedIndex = 0;
-        selectedStation = stations.isNotEmpty ? stations[0] : null;
-      });
-    } catch (e) {
-      debugPrint("Search failed: $e");
-      setState(() => stations = _topStations); // fallback
-    }
-  }
-
-  void _selectStation(int index) {
-    setState(() {
-      _selectedIndex = index;
-      selectedStation = stations[index];
-      _tabController.animateTo(1);
-      _isPlaying = true;
-    });
-  }
-
-  Future<void> playRadioStation(String streamUrl) async {
-    try {
-      await _player.stop();
-      await _player.setUrl(streamUrl);
-      await _player.play();
-    } catch (e) {
-      debugPrint('Radio play error: $e');
-    }
-  }
+  bool _isPlaying = false;
+  double _volume = 0.5;
 
   Future<void> playRadio(String url) async {
     setState(() => _isPlaying = !_isPlaying);
@@ -124,255 +141,37 @@ class _RadioBottomSheetContentState extends State<RadioBottomSheetContent>
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Center(
-            child: Container(
-              width: 60,
-              height: 4,
-              decoration: BoxDecoration(
-                color: Colors.white24,
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-          ),
-          const SizedBox(height: 12),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Image.asset(
-                "assets/appIcons/radio_icon.png",
-                height: 70,
-                width: 70,
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Align(
-                  alignment: Alignment.centerRight,
-                  child: TabBar(
-                    controller: _tabController,
-                    indicatorColor: const Color(0xFF00BBFF),
-                    labelColor: const Color(0xFF00BBFF),
-                    unselectedLabelColor: Colors.white54,
-                    tabs: const [
-                      Tab(text: 'Stations'),
-                      Tab(text: 'Now Playing'),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  controller: _countryController,
-                  style: const TextStyle(color: Color(0xFF00BBFF)),
-                  decoration: InputDecoration(
-                    hintText: 'Country',
-                    hintStyle: const TextStyle(color: Colors.white38),
-                    prefixIcon: const Icon(Icons.public, color: Colors.white38),
-                    filled: true,
-                    fillColor: Colors.white12,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: TextField(
-                  controller: _stationsController,
-                  style: const TextStyle(color: Color(0xFF00BBFF)),
-                  decoration: InputDecoration(
-                    hintText: 'Station Name',
-                    hintStyle: const TextStyle(color: Colors.white38),
-                    prefixIcon: const Icon(Icons.search, color: Colors.white38),
-                    filled: true,
-                    fillColor: Colors.white12,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              InkWell(
-                onTap: _search,
-                child: SizedBox(
-                  height: 48,
-                  width: 48,
-                  child: Image.asset(
-                    "assets/appIcons/search_icon.png",
-                    color: Colors.lightBlueAccent,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Expanded(
-            child: TabBarView(
-              controller: _tabController,
-              children: [
-                // Stations List
-                ListView.separated(
-                  itemCount: stations.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 8),
-                  itemBuilder: (context, index) {
-                    final s = stations[index];
-                    final isSelected = s == selectedStation;
-                    return GestureDetector(
-                      onTap: () {
-                        _selectStation(index);
-                        playRadioStation(stations[index].url);
-                        _selectedUrl = stations[index].url;
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: isSelected
-                              ? const Color(0xFF00BBFF).withOpacity(0.2)
-                              : Colors.white12,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: isSelected
-                                ? const Color(0xFF00BBFF)
-                                : Colors.transparent,
-                          ),
-                        ),
-                        child: Row(
-                          children: [
-                            Container(
-                              width: 60,
-                              padding: const EdgeInsets.symmetric(vertical: 8),
-                              decoration: BoxDecoration(
-                                color: Colors.white10,
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Center(
-                                child: Text(
-                                  s.bitrate.toString(),
-                                  style: const TextStyle(
-                                    color: Color(0xFF00BBFF),
-                                    fontWeight: FontWeight.bold,
-                                    fontFamily: 'Courier',
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    s.name,
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                  Text(
-                                    s.country,
-                                    style: const TextStyle(
-                                      color: Colors.white54,
-                                      fontSize: 12,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            IconButton(
-                              onPressed: () {},
-                              icon: Icon(
-                                s.favorite
-                                    ? Icons.favorite
-                                    : Icons.favorite_border,
-                                color: s.favorite
-                                    ? const Color(0xFF00BBFF)
-                                    : Colors.white54,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                ),
-                // Now Playing
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      selectedStation?.bitrate.toString() ?? '--',
-                      style: const TextStyle(
-                        color: Color(0xFF00BBFF),
-                        fontSize: 72,
-                        fontWeight: FontWeight.bold,
-                        fontFamily: 'Courier',
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      selectedStation != null
-                          ? selectedStation!.name
-                          : 'Select a station',
-                      style: const TextStyle(
-                        color: Colors.white70,
-                        fontSize: 16,
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        IconButton(
-                          icon: const Icon(
-                            Icons.volume_up,
-                            color: Colors.white70,
-                          ),
-                          onPressed: () {},
-                        ),
-                        Slider(
-                          value: _volume,
-                          min: 0,
-                          max: 1,
-                          activeColor: const Color(0xFF00BBFF),
-                          inactiveColor: Colors.white12,
-                          onChanged: (v) => setState(() => _volume = v),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    FloatingActionButton(
-                      onPressed: () {
-                        playRadio(_selectedUrl);
-                      },
-                      backgroundColor: const Color(0xFF00BBFF),
-                      child: Icon(
-                        _isPlaying ? Icons.pause : Icons.play_arrow,
-                        color: Colors.black87,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
+    final station = widget.station;
+
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(
+          station?.name ?? "No station selected",
+          style: const TextStyle(color: Colors.white),
+        ),
+
+        const SizedBox(height: 20),
+
+        Slider(
+          value: _volume,
+          onChanged: (v) {
+            setState(() => _volume = v);
+            _player.setVolume(v);
+          },
+        ),
+
+        const SizedBox(height: 20),
+
+        FloatingActionButton(
+          onPressed: () {
+            if (station != null) {
+              playRadio(station.url);
+            }
+          },
+          child: Icon(_isPlaying ? Icons.pause : Icons.play_arrow),
+        )
+      ],
     );
   }
 }

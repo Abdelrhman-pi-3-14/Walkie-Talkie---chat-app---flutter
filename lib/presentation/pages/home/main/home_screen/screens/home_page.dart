@@ -90,10 +90,10 @@ class _HomePageState extends State<HomePage> {
           DraggableScrollableSheet(
             controller: _sheetController,
             initialChildSize: 0.7,
-            minChildSize: 0.25,
+            minChildSize: 0.7,
             maxChildSize: 1,
             snap: true,
-            snapSizes: const [0.25,0.75],
+            snapSizes: const [0.7,1],
             builder: (context, scrollController) {
               return DraggableSheetContent(
                 r: r,
@@ -155,7 +155,7 @@ void showWeatherBottomSheet(BuildContext context) {
             color: const Color(0xFF042845),
             borderRadius: BorderRadius.circular(r.w(0.05)),
           ),
-          child: const WeatherBottomSheetContent(),
+          child: WeatherBottomSheetContent(),
         ),
       );
     },

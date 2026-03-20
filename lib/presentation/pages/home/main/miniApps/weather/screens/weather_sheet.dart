@@ -1,56 +1,14 @@
 // presentation/pages/home/main/miniApps/weather/screens/weather_sheet.dart
 import 'package:flutter/material.dart';
-import 'package:walkie_talkie/data/services/web_services/weather/weather_service.dart';
-
-import '../../../../../../../data/models/weather/current_weather.dart';
-import '../../../../../../../data/models/weather/forecast_weather.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:walkie_talkie/bussnies_logic/cubit/weather_cubit/weather_cubit.dart';
 
 
-class WeatherBottomSheetContent extends StatefulWidget {
-  const WeatherBottomSheetContent({super.key});
 
-  @override
-  State<WeatherBottomSheetContent> createState() =>
-      _WeatherBottomSheetContentState();
-}
+class WeatherBottomSheetContent extends StatelessWidget {
+  WeatherBottomSheetContent({super.key});
 
-class _WeatherBottomSheetContentState extends State<WeatherBottomSheetContent> {
   final TextEditingController _cityController = TextEditingController();
-
-  final WeatherService weatherService = WeatherService(
-  );
-
-  bool isLoadingWeather = false;
-  CurrentWeather? currentWeather;
-  ForecastResponse? forecastWeather;
-
-  Future<void> fetchWeather(String city) async {
-    setState(() => isLoadingWeather = true);
-
-    try {
-      final current = await weatherService.getCurrentWeather(city);
-      final forecast = await weatherService.getForecast(city);
-
-      if (!mounted) return;
-
-      setState(() {
-        currentWeather = current;
-        forecastWeather = forecast;
-        isLoadingWeather = false;
-      });
-    } catch (e) {
-      setState(() => isLoadingWeather = false);
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Failed to fetch weather: $e')));
-    }
-  }
-
-  @override
-  void dispose() {
-    _cityController.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -70,16 +28,13 @@ class _WeatherBottomSheetContentState extends State<WeatherBottomSheetContent> {
 
         const SizedBox(height: 16),
 
-        /// search
+        /// 🔍 SEARCH
         Row(
           children: [
             Expanded(
               child: TextField(
                 controller: _cityController,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontFamily: 'digital',
-                ),
+                style: const TextStyle(color: Colors.white),
                 decoration: InputDecoration(
                   hintText: "Search city...",
                   hintStyle: const TextStyle(color: Colors.white54),
@@ -93,60 +48,93 @@ class _WeatherBottomSheetContentState extends State<WeatherBottomSheetContent> {
               ),
             ),
             const SizedBox(width: 12),
+
             InkWell(
-              onTap: () => fetchWeather(_cityController.text),
-              child: SizedBox(
-                height: 48,
-                width: 48,
-                child: Image.asset(
-                  "assets/appIcons/search_icon.png",
-                  color: Colors.lightBlueAccent,
-                ),
-              ),
+              onTap: () {
+                context
+                    .read<WeatherCubit>()
+                    .getWeather(_cityController.text);
+              },
+              child: const Icon(Icons.search, color: Colors.lightBlueAccent),
             ),
           ],
         ),
 
         const SizedBox(height: 20),
 
-        /// current weather
-        _CurrentWeatherCard(
-          cityName: currentWeather?.countryName,
-          temp: currentWeather?.temperature,
-          weatherId: currentWeather?.weatherId,
-          lat: currentWeather?.lat,
-          long: currentWeather?.long,
-        ),
-
-        const SizedBox(height: 24),
-
-        /// forecast title
-        const Align(
-          alignment: Alignment.centerLeft,
-          child: Text(
-            "Forecast",
-            style: TextStyle(
-              color: Colors.lightBlueAccent,
-              fontSize: 16,
-              fontFamily: 'digital',
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-
-        const SizedBox(height: 12),
-
-        /// forecast list
         Expanded(
-          child: ListView.separated(
-            itemCount: forecastWeather?.items.length ?? 0,
-            separatorBuilder: (_, __) => const SizedBox(height: 12),
-            itemBuilder: (context, index) {
-              final item = forecastWeather!.items[index];
-              return _ForecastItem(
-                dateTime: item.dateTime,
-                temp: item.temp,
-                weatherId: item.condition.weatherId,
+          child: BlocBuilder<WeatherCubit, WeatherState>(
+            builder: (context, state) {
+              if (state is WeatherLoading) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              if (state is WeatherError) {
+                return Center(
+                  child: Text(
+                    state.message,
+                    style: const TextStyle(color: Colors.red),
+                  ),
+                );
+              }
+
+              if (state is WeatherLoaded) {
+                final current = state.currentWeather;
+                final forecast = state.forecastResponse;
+
+                return Column(
+                  children: [
+                    /// CURRENT WEATHER
+                    _CurrentWeatherCard(
+                      cityName: current.countryName,
+                      temp: current.temperature,
+                      weatherId: current.weatherId,
+                      lat: current.lat,
+                      long: current.long,
+                    ),
+
+                    const SizedBox(height: 24),
+
+                    const Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        "Forecast",
+                        style: TextStyle(
+                          color: Colors.lightBlueAccent,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 12),
+
+                    /// FORECAST LIST
+                    Expanded(
+                      child: ListView.separated(
+                        itemCount: forecast.items.length,
+                        separatorBuilder: (_, __) =>
+                            const SizedBox(height: 12),
+                        itemBuilder: (context, index) {
+                          final item = forecast.items[index];
+
+                          return _ForecastItem(
+                            dateTime: item.dateTime,
+                            temp: item.temp,
+                            weatherId: item.condition.weatherId,
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                );
+              }
+
+              return const Center(
+                child: Text(
+                  "Search for a city",
+                  style: TextStyle(color: Colors.white54),
+                ),
               );
             },
           ),
@@ -170,7 +158,7 @@ class _CurrentWeatherCard extends StatelessWidget {
     required this.temp,
     required this.weatherId,
     required this.lat,
-    required this.long
+    required this.long,
   });
 
   @override

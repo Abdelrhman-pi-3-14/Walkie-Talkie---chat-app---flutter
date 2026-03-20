@@ -1,6 +1,9 @@
 // presentation/pages/home/main/home_screen/widgets/home_header.dart
 import 'dart:ui' show lerpDouble;
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:walkie_talkie/bussnies_logic/cubit/weather_cubit/weather_cubit.dart';
+import 'package:walkie_talkie/presentation/pages/home/main/miniApps/weather/screens/weather_sheet.dart';
 import '../../../../../../constants/rosponsive_helper.dart';
 
 class HomeHeader extends StatelessWidget {
@@ -19,7 +22,7 @@ class HomeHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cardOpacity = (1 - sheetProgress * 0.9).clamp(0.0, 1.0);
+    final cardOpacity = 1.0;
     final cardScale = lerpDouble(1.0, 0.85, sheetProgress)!;
 
     return Container(
@@ -53,19 +56,13 @@ class HomeHeader extends StatelessWidget {
                 ),
               ),
 
-SizedBox(
-  width: r.w(.02),
-),
               /// WEATHER
               Opacity(
                 opacity: cardOpacity,
-                child: Transform.scale(
-                  scale: cardScale,
-                  child: _weatherCard(),
-                ),
+                child: Transform.scale(scale: cardScale, child: _weatherCard()),
               ),
             ],
-          )
+          ),
         ],
       ),
     );
@@ -95,7 +92,7 @@ SizedBox(
               ),
             ),
 
-            SizedBox(width: r.w(0.03)),
+            SizedBox(width: r.w(0.0)),
 
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -120,7 +117,7 @@ SizedBox(
                   ),
                 ),
               ],
-            )
+            ),
           ],
         ),
       ),
@@ -153,59 +150,90 @@ SizedBox(
                 fontWeight: FontWeight.bold,
                 fontFamily: 'digital',
               ),
-            )
+            ),
           ],
         ),
       ),
     );
   }
+Widget _weatherCard() {
+  return GestureDetector(
+    onTap: onTapWeather,
+    child: Container(
+      width: r.w(0.30),
+      height: r.h(0.20),
+      padding: EdgeInsets.all(r.paddingSmall),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.08),
+        borderRadius: BorderRadius.circular(r.w(0.04)),
+        border: Border.all(color: Colors.white24),
+      ),
+      child: BlocBuilder<WeatherCubit, WeatherState>(
+        builder: (context, state) {
+          if (state is WeatherLoading) {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          } 
+          
+          else if (state is WeatherLoaded) {
+            final current = state.currentWeather;
 
-  Widget _weatherCard() {
-    return GestureDetector(
-      onTap: onTapWeather,
-      child: Container(
-        width: r.w(0.30),
-        height: r.h(0.2),
-        padding: EdgeInsets.all(r.paddingSmall),
-        decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.08),
-          borderRadius: BorderRadius.circular(r.w(0.04)),
-          border: Border.all(color: Colors.white24),
-        ),
-        child: Column(
-          children: [
-            Row(
+            return Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      "${current.temperature.round()}°",
+                      style: TextStyle(
+                        fontSize: r.w(0.07),
+                        color: const Color(0xFF009DFF),
+                        fontFamily: 'digital',
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(width: r.w(0.02)),
+                    Icon(
+                      getWeatherIcon(current.weatherId),
+                      size: r.w(0.05),
+                      color: getWeatherColor(current.weatherId),
+                    ),
+                  ],
+                ),
+
+                SizedBox(height: r.h(0.02)),
+
                 Text(
-                  "-23°",
+                  current.countryName,
                   style: TextStyle(
-                    fontSize: r.w(0.07),
+                    fontSize: r.w(0.035),
                     color: const Color(0xFF009DFF),
                     fontFamily: 'digital',
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                SizedBox(width: r.w(0.02)),
-                Icon(
-                  Icons.wb_sunny,
-                  size: r.w(0.05),
-                  color: Colors.orangeAccent,
-                ),
               ],
+            );
+          } 
+          
+          else if (state is WeatherError) {
+            return const Center(
+              child: Icon(Icons.error, color: Colors.red),
+            );
+          }
+
+          /// Initial state
+          return const Center(
+            child: Text(
+              "--",
+              style: TextStyle(color: Colors.white54),
             ),
-            SizedBox(height: r.h(0.02)),
-            Text(
-              "alexandria, eg",
-              style: TextStyle(
-                fontSize: r.w(0.035),
-                color: const Color(0xFF009DFF),
-                fontFamily: 'digital',
-                fontWeight: FontWeight.bold,
-              ),
-            )
-          ],
-        ),
+          );
+        },
       ),
-    );
-  }
+    ),
+  );
+}
 }

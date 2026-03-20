@@ -7,22 +7,16 @@ class RadioCache {
 
   RadioCache(this.box);
 
-  Future<void> cacheRadioStations(List<RadioStation> stations) async {
-    try {
-      if (box.get('stations') == null) {
-        await box.put('stations', stations);
-      } else {
-        await box.delete('stations');
-        await box.put('stations', stations);
-      }
-    } catch (e) {
-      print("cacheing error : $e");
-    }
-  }
+Future<void> cacheRadioStations(List<RadioStation> stations) async {
+  final box = Hive.box('radio_box');
+  await box.clear(); 
+  await box.addAll(stations); 
+}
 
-  Future<List<RadioStation>> loadRadioCache() async {
-    return await box.get('stations');
-  }
+Future<List<RadioStation>> loadRadioCache() async {
+  final box = Hive.box('radio_box');
+  return box.values.cast<RadioStation>().toList();
+}
 
   Future<void> cacheFavRadioStations(List<RadioStation> stations) async {
     try {

@@ -18,10 +18,9 @@ class WeatherRepository {
   Future<CurrentWeather> fetchCurrentWeather(String cityName) async {
     try {
       final currentWeather = await weatherService.getCurrentWeather(cityName);
-      weatherCacheing.cacheingCurrentWeather(currentWeather);
+       weatherCacheing.cacheingCurrentWeather(currentWeather);
       return currentWeather;
     } catch (e) {
-      print("faild : $e");
       return weatherCacheing.displayCachedCurrentWeather();
     }
   }
@@ -32,7 +31,6 @@ class WeatherRepository {
       weatherCacheing.cacheingForeCast(foreCast);
       return foreCast;
     } catch (e) {
-      print("error : $e");
       return weatherCacheing.displayCachedForeCast();
     }
   }
