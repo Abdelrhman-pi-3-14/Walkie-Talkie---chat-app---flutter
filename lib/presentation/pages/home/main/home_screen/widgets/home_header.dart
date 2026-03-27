@@ -156,6 +156,7 @@ class HomeHeader extends StatelessWidget {
       ),
     );
   }
+  
 Widget _weatherCard() {
   return GestureDetector(
     onTap: onTapWeather,
@@ -186,7 +187,7 @@ Widget _weatherCard() {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      "${current.temperature.round()}°",
+                      "${current?.temperature.round()}°",
                       style: TextStyle(
                         fontSize: r.w(0.07),
                         color: const Color(0xFF009DFF),
@@ -196,7 +197,7 @@ Widget _weatherCard() {
                     ),
                     SizedBox(width: r.w(0.02)),
                     Icon(
-                      getWeatherIcon(current.weatherId),
+                      getWeatherIcon(current!.weatherId),
                       size: r.w(0.05),
                       color: getWeatherColor(current.weatherId),
                     ),
@@ -236,4 +237,6 @@ Widget _weatherCard() {
     ),
   );
 }
+
+
 }

@@ -1,3 +1,4 @@
+// data/models/weather/current_weather.dart
 class CurrentWeather {
   final double temperature;
   final int weatherId;
@@ -13,6 +14,18 @@ class CurrentWeather {
     required this.lat,
     required this.long,
   });
+
+
+    factory CurrentWeather.empty() {
+    return CurrentWeather(
+      countryName: "--",
+      temperature: 0,
+      weatherId: 800, 
+      lat: 0,
+      long: 0,
+    );
+  }
+
 
   factory CurrentWeather.fromJson(Map<String, dynamic> json) {
     return CurrentWeather(

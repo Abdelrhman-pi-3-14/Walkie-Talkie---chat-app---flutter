@@ -36,6 +36,14 @@ class ForecastResponse {
     required this.items,
   });
 
+
+
+   factory ForecastResponse.empty() {
+    return ForecastResponse(cityName: " ",  items: []);
+  }
+
+
+
   factory ForecastResponse.fromJson(Map<String, dynamic> json) {
     final city = json['city']['name'] as String;
     final list = (json['list'] as List)

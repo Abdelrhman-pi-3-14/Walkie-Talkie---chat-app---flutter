@@ -1,6 +1,4 @@
 // data/repositories/weather_repo.dart
-// ignore_for_file: public_member_api_docs, sort_constructors_first
-// data/repositories/weather_repo.dart
 import 'package:walkie_talkie/data/models/weather/current_weather.dart';
 import 'package:walkie_talkie/data/models/weather/forecast_weather.dart';
 import 'package:walkie_talkie/data/services/local_services/weather_cache/weather_cacheing.dart';
@@ -8,30 +6,43 @@ import 'package:walkie_talkie/data/services/web_services/weather/weather_service
 
 class WeatherRepository {
   final WeatherService weatherService;
-  final WeatherCacheing weatherCacheing;
+  final WeatherCaching weatherCacheing;
 
   WeatherRepository({
     required this.weatherService,
     required this.weatherCacheing,
   });
 
-  Future<CurrentWeather> fetchCurrentWeather(String cityName) async {
+  /// Always return cached current weather
+  CurrentWeather? getCachedCurrentWeather() {
+    return weatherCacheing.getCachedCurrentWeather();
+  }
+
+  /// Always return cached forecast
+  ForecastResponse? getCachedForecast() {
+    return weatherCacheing.getCachedForecast();
+  }
+
+  /// Optional: Update cache in background
+  Future<CurrentWeather?> updateCurrentWeather(String cityName) async {
     try {
       final currentWeather = await weatherService.getCurrentWeather(cityName);
-       weatherCacheing.cacheingCurrentWeather(currentWeather);
+      await weatherCacheing.cacheCurrentWeather(currentWeather);
       return currentWeather;
-    } catch (e) {
-      return weatherCacheing.displayCachedCurrentWeather();
+    } catch (_) {
+      // Ignore errors, keep cached data
+      return weatherCacheing.getCachedCurrentWeather();
     }
   }
 
-  Future<ForecastResponse> fetchForeCastWeather(String cityName) async {
+  Future<ForecastResponse?> updateForecastWeather(String cityName) async {
     try {
-      final foreCast = await weatherService.getForecast(cityName);
-      weatherCacheing.cacheingForeCast(foreCast);
-      return foreCast;
-    } catch (e) {
-      return weatherCacheing.displayCachedForeCast();
+      final forecast = await weatherService.getForecast(cityName);
+      await weatherCacheing.cacheForecast(forecast);
+      return forecast;
+    } catch (_) {
+      // Ignore errors, keep cached data
+      return weatherCacheing.getCachedForecast();
     }
   }
 }

@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:walkie_talkie/bussnies_logic/cubit/radio_cubit/radio_cubit.dart';
 import '../../../../../../../data/models/radio/radio_model.dart';
+
 class RadioBottomSheetContent extends StatelessWidget {
   const RadioBottomSheetContent({super.key});
 
@@ -14,8 +15,6 @@ class RadioBottomSheetContent extends StatelessWidget {
       child: Column(
         children: [
           const SizedBox(height: 10),
-
-          /// Top Handle
           Container(
             width: 60,
             height: 4,
@@ -40,11 +39,13 @@ class RadioBottomSheetContent extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.all(8),
             child: TextField(
-              decoration: const InputDecoration(
-                hintText: "Search country",
-              ),
+              decoration: const InputDecoration(hintText: "Search country"),
               onSubmitted: (value) {
-                context.read<RadioCubit>().search(value);
+               String country = value.trim(); 
+               country = country.toLowerCase(); 
+               country = country.replaceAll(RegExp(r'\s+'), ' ');
+               debugPrint("this the country value : $country");
+              context.read<RadioCubit>().search(country);
               },
             ),
           ),
@@ -170,7 +171,7 @@ class _NowPlayingState extends State<_NowPlaying> {
             }
           },
           child: Icon(_isPlaying ? Icons.pause : Icons.play_arrow),
-        )
+        ),
       ],
     );
   }

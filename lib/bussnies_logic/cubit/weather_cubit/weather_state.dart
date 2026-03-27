@@ -9,8 +9,8 @@ final class WeatherInitial extends WeatherState {}
 class WeatherLoading extends WeatherState {}
 
 class WeatherLoaded extends WeatherState {
-  final CurrentWeather currentWeather;
-  final ForecastResponse forecastResponse;
+  final CurrentWeather? currentWeather;
+  final ForecastResponse? forecastResponse;
 
   WeatherLoaded({required this.currentWeather, required this.forecastResponse});
 }

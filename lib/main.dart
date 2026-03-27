@@ -22,43 +22,72 @@ import 'package:flutter/services.dart';
 Future<void> main() async {
   await dotenv.load(fileName: "walkie_talkie.env");
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+
+  // Hive Adaptors
   await Hive.initFlutter();
-   Hive.registerAdapter(RadioStationAdapter());
+  Hive.registerAdapter(RadioStationAdapter());
   Hive.registerAdapter(CurrentWeatherAdapter());
   Hive.registerAdapter(ForecastWeatherAdapter());
   Hive.registerAdapter(ForecastResponseAdapter());
   Hive.registerAdapter(WeatherConditionAdapter());
-  final weatherBox = await Hive.openBox('weather_box');
-  final radioBox = await Hive.openBox('radio_box');
 
-  runApp(MyApp(weatherBox: weatherBox, radioBox: radioBox));
+  // open the hive boxes
+  final radioBox = await Hive.openBox<RadioStation>("radio_stations");
+  final favRadioBox = await Hive.openBox<RadioStation>("fav_Radio");
+  final currentWeatherBox = await Hive.openBox<CurrentWeather>(
+    "current_weather",
+  );
+  final forcastBox = await Hive.openBox<ForecastResponse>("weather_forecast");
+
+  runApp(
+    MyApp(
+      weatherBox: currentWeatherBox,
+      radioBox: radioBox,
+      favRadio: favRadioBox,
+      foreCast: forcastBox,
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
-  final Box weatherBox;
-  final Box radioBox;
+  final Box<CurrentWeather> weatherBox;
+  final Box<RadioStation> radioBox;
+  final Box<RadioStation> favRadio;
+  final Box<ForecastResponse> foreCast;
 
-  const MyApp({super.key, required this.weatherBox, required this.radioBox});
+  const MyApp({
+    super.key,
+    required this.weatherBox,
+    required this.radioBox,
+    required this.favRadio,
+    required this.foreCast,
+  });
 
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    final WeatherCacheing weatherCacheing = WeatherCacheing(box: weatherBox);
+    final WeatherCaching weatherCacheing = WeatherCaching(
+      currentWeatherBox: weatherBox,
+      forecastBox: foreCast,
+    );
     final WeatherService weatherService = WeatherService();
     final WeatherRepository weatherRepository = WeatherRepository(
       weatherService: weatherService,
       weatherCacheing: weatherCacheing,
     );
 
-    final RadioCache radioCache = RadioCache(radioBox);
+    final RadioCache radioCache = RadioCache( radioStationBox: radioBox, favStatioansBox: favRadio);
     final RadioService radioService = RadioService();
-    final RadioRepository radioRepository = RadioRepository(radioService, radioCache);
+    final RadioRepository radioRepository = RadioRepository(
+      radioService,
+      radioCache,
+    );
 
     return MultiBlocProvider(
-      providers:[
-          BlocProvider(create: (_)=> WeatherCubit(weatherRepository)),
-          BlocProvider(create: (_)=> RadioCubit(radioRepository))
-    ],
+      providers: [
+        BlocProvider(create: (_) => WeatherCubit(weatherRepository)),
+        BlocProvider(create: (_) => RadioCubit(radioRepository)),
+      ],
 
       child: MaterialApp(
         title: 'Flutter Demo',

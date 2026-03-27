@@ -3,36 +3,39 @@ import 'package:hive_flutter/adapters.dart';
 import 'package:walkie_talkie/data/models/radio/radio_model.dart';
 
 class RadioCache {
-  final Box box;
+  final Box radioStationBox;
+  final Box favStatioansBox;
 
-  RadioCache(this.box);
+  RadioCache({required this.radioStationBox, required this.favStatioansBox});
 
-Future<void> cacheRadioStations(List<RadioStation> stations) async {
-  final box = Hive.box('radio_box');
-  await box.clear(); 
-  await box.addAll(stations); 
-}
+  Future<void> cacheRadioStations(List<RadioStation> stations) async {
+    try {
+      await radioStationBox.clear();
+      for (var station in stations) {
+        await radioStationBox.put(station.stationUuid, station);
+      }
+    } catch (e) {
+      Exception("something went worng : $e");
+    }
+  }
 
-Future<List<RadioStation>> loadRadioCache() async {
-  final box = Hive.box('radio_box');
-  return box.values.cast<RadioStation>().toList();
-}
+  Future<List<RadioStation>> loadRadioCache() async {
+    return radioStationBox.values.cast<RadioStation>().toList();
+  }
 
   Future<void> cacheFavRadioStations(List<RadioStation> stations) async {
     try {
-      for (int i = 0; i < stations.length; i++) {
-        if (stations[i].favorite) {
-          await box.put('fav_stations', stations);
-        } else {
-          await box.deleteAt(i);
+      for (var station in stations) {
+        if (station.favorite == true) {
+          await favStatioansBox.put(station.stationUuid, station);
         }
       }
     } catch (e) {
-      print("cacheing error : $e");
+      Exception("cacheing error : $e");
     }
   }
 
   Future<List<RadioStation>> loadFavRadioStaions() async {
-    return await box.get('fav_stations');
+    return favStatioansBox.values.cast<RadioStation>().toList();
   }
 }

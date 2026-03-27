@@ -44,7 +44,7 @@ class RadioService {
 Future<List<RadioStation>> searchWithCountry(String countryName) async {
   final code = resolver.getCountryCode(countryName);
 
-  if (code == null || code.isEmpty) {
+  if (code.isEmpty) {
     throw Exception('Invalid country name: $countryName');
   }
 

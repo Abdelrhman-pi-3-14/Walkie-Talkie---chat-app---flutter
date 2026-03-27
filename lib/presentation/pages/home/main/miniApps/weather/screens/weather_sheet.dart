@@ -3,8 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:walkie_talkie/bussnies_logic/cubit/weather_cubit/weather_cubit.dart';
 
-
-
 class WeatherBottomSheetContent extends StatelessWidget {
   WeatherBottomSheetContent({super.key});
 
@@ -28,7 +26,7 @@ class WeatherBottomSheetContent extends StatelessWidget {
 
         const SizedBox(height: 16),
 
-        /// 🔍 SEARCH
+        /// CITY SEARCH
         Row(
           children: [
             Expanded(
@@ -48,12 +46,13 @@ class WeatherBottomSheetContent extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 12),
-
             InkWell(
               onTap: () {
-                context
-                    .read<WeatherCubit>()
-                    .getWeather(_cityController.text);
+                // Update cached weather for this city
+                final city = _cityController.text.trim();
+                if (city.isNotEmpty) {
+                  context.read<WeatherCubit>().updateWeatherInBackground(city);
+                }
               },
               child: const Icon(Icons.search, color: Colors.lightBlueAccent),
             ),
@@ -62,6 +61,7 @@ class WeatherBottomSheetContent extends StatelessWidget {
 
         const SizedBox(height: 20),
 
+        /// WEATHER DISPLAY
         Expanded(
           child: BlocBuilder<WeatherCubit, WeatherState>(
             builder: (context, state) {
@@ -82,15 +82,24 @@ class WeatherBottomSheetContent extends StatelessWidget {
                 final current = state.currentWeather;
                 final forecast = state.forecastResponse;
 
+                if (current == null && (forecast?.items.isEmpty ?? true)) {
+                  return const Center(
+                    child: Text(
+                      "No cached data. Search for a city!",
+                      style: TextStyle(color: Colors.white54),
+                    ),
+                  );
+                }
+
                 return Column(
                   children: [
                     /// CURRENT WEATHER
                     _CurrentWeatherCard(
-                      cityName: current.countryName,
-                      temp: current.temperature,
-                      weatherId: current.weatherId,
-                      lat: current.lat,
-                      long: current.long,
+                      cityName: current?.countryName,
+                      temp: current?.temperature,
+                      weatherId: current?.weatherId,
+                      lat: current?.lat,
+                      long: current?.long,
                     ),
 
                     const SizedBox(height: 24),
@@ -110,22 +119,30 @@ class WeatherBottomSheetContent extends StatelessWidget {
                     const SizedBox(height: 12),
 
                     /// FORECAST LIST
-                    Expanded(
-                      child: ListView.separated(
-                        itemCount: forecast.items.length,
-                        separatorBuilder: (_, __) =>
-                            const SizedBox(height: 12),
-                        itemBuilder: (context, index) {
-                          final item = forecast.items[index];
-
-                          return _ForecastItem(
-                            dateTime: item.dateTime,
-                            temp: item.temp,
-                            weatherId: item.condition.weatherId,
-                          );
-                        },
+                    if (forecast != null && forecast.items.isNotEmpty)
+                      Expanded(
+                        child: ListView.separated(
+                          itemCount: forecast.items.length,
+                          separatorBuilder: (_, __) => const SizedBox(height: 12),
+                          itemBuilder: (context, index) {
+                            final item = forecast.items[index];
+                            return _ForecastItem(
+                              dateTime: item.dateTime,
+                              temp: item.temp,
+                              weatherId: item.condition.weatherId,
+                            );
+                          },
+                        ),
+                      )
+                    else
+                      const Expanded(
+                        child: Center(
+                          child: Text(
+                            "No forecast data available",
+                            style: TextStyle(color: Colors.white54),
+                          ),
+                        ),
                       ),
-                    ),
                   ],
                 );
               }
@@ -189,7 +206,7 @@ class _CurrentWeatherCard extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                temp == null ? "-- °C" : "${temp!.round()} °C",
+                temp != null ? "${temp!.round()} °C" : "-- °C",
                 style: const TextStyle(
                   color: Color(0xFF00BBFF),
                   fontSize: 42,
@@ -201,7 +218,7 @@ class _CurrentWeatherCard extends StatelessWidget {
               Row(
                 children: [
                   Text(
-                    temp == null ? "lat : --" : "lat : ${lat!.round()}",
+                    lat != null ? "lat : ${lat!.round()}" : "lat : --",
                     style: const TextStyle(
                       color: Color(0xFF00BBFF),
                       fontSize: 20,
@@ -211,7 +228,7 @@ class _CurrentWeatherCard extends StatelessWidget {
                   ),
                   const SizedBox(width: 16),
                   Text(
-                    temp == null ? "long : --" : "long : ${long!.round()}",
+                    long != null ? "long : ${long!.round()}" : "long : --",
                     style: const TextStyle(
                       color: Color(0xFF00BBFF),
                       fontSize: 20,
@@ -259,9 +276,9 @@ class _ForecastItem extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
-            dateTime == null
-                ? "-- / -- / --"
-                : "${dateTime!.day}/${dateTime!.month}",
+            dateTime != null
+                ? "${dateTime!.day}/${dateTime!.month}"
+                : "-- / -- / --",
             style: const TextStyle(
               color: Color(0xFF00BBFF),
               fontFamily: 'digital',
@@ -272,7 +289,7 @@ class _ForecastItem extends StatelessWidget {
               Icon(icon, color: color, size: 20),
               const SizedBox(width: 8),
               Text(
-                temp == null ? "-- °C" : "${temp!.round()} °C",
+                temp != null ? "${temp!.round()} °C" : "-- °C",
                 style: const TextStyle(
                   color: Colors.white,
                   fontFamily: 'digital',
@@ -289,90 +306,23 @@ class _ForecastItem extends StatelessWidget {
 /* ───────────────────────── ICON MAPPER ───────────────────────── */
 
 IconData getWeatherIcon(int id) {
-  switch (id) {
-    case 200:
-    case 201:
-    case 202:
-    case 210:
-    case 211:
-    case 212:
-    case 221:
-    case 230:
-    case 231:
-    case 232:
-      return Icons.thunderstorm;
-
-    case 300:
-    case 301:
-    case 302:
-    case 310:
-    case 311:
-    case 312:
-    case 313:
-    case 314:
-    case 321:
-      return Icons.grain;
-
-    case 500:
-    case 501:
-    case 502:
-    case 503:
-    case 504:
-    case 511:
-    case 520:
-    case 521:
-    case 522:
-    case 531:
-      return Icons.umbrella;
-
-    case 600:
-    case 601:
-    case 602:
-    case 611:
-    case 612:
-    case 613:
-    case 615:
-    case 616:
-    case 620:
-    case 621:
-    case 622:
-      return Icons.ac_unit;
-
-    case 701:
-    case 711:
-    case 721:
-    case 731:
-    case 741:
-    case 751:
-    case 761:
-    case 762:
-    case 771:
-    case 781:
-      return Icons.foggy;
-
-    case 800:
-      return Icons.wb_sunny;
-
-    case 801:
-    case 802:
-    case 803:
-    case 804:
-      return Icons.cloud;
-
-    default:
-      return Icons.ac_unit_sharp;
-  }
+  if (id >= 200 && id < 300) return Icons.thunderstorm;
+  if (id >= 300 && id < 400) return Icons.grain;
+  if (id >= 500 && id < 600) return Icons.umbrella;
+  if (id >= 600 && id < 700) return Icons.ac_unit;
+  if (id >= 700 && id < 800) return Icons.foggy;
+  if (id == 800) return Icons.wb_sunny;
+  if (id > 800) return Icons.cloud;
+  return Icons.ac_unit_sharp;
 }
 
-/* ───────────────────────── COLOR MAPPER ───────────────────────── */
-
 Color getWeatherColor(int id) {
-  if (id >= 200 && id < 300) return Colors.deepPurpleAccent; // thunder
-  if (id >= 300 && id < 400) return Colors.lightBlueAccent; // drizzle
-  if (id >= 500 && id < 600) return Colors.blueAccent; // rain
-  if (id >= 600 && id < 700) return Colors.white; // snow
-  if (id >= 700 && id < 800) return Colors.grey; // fog
-  if (id == 800) return Colors.orangeAccent; // clear
-  if (id > 800) return Colors.blueGrey; // clouds
+  if (id >= 200 && id < 300) return Colors.deepPurpleAccent;
+  if (id >= 300 && id < 400) return Colors.lightBlueAccent;
+  if (id >= 500 && id < 600) return Colors.blueAccent;
+  if (id >= 600 && id < 700) return Colors.white;
+  if (id >= 700 && id < 800) return Colors.grey;
+  if (id == 800) return Colors.orangeAccent;
+  if (id > 800) return Colors.blueGrey;
   return Colors.white;
 }
